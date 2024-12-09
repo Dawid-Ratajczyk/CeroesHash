@@ -89,42 +89,6 @@ namespace Ceroes_
                 mapa=Newtonsoft.Json.JsonConvert.DeserializeObject<Map>(File.ReadAllText(mapChoice));
             }
         }
-        //color
-        public void SetBackgroundColour(int id)
-        {
-            switch (id)
-            {
-                case 0: Console.BackgroundColor = ConsoleColor.Black;    break;
-                case 1: Console.BackgroundColor = ConsoleColor.White;    break;
-                case 2: Console.BackgroundColor = ConsoleColor.Green;    break;
-                case 3: Console.BackgroundColor = ConsoleColor.Blue;     break;
-                case 4: Console.BackgroundColor = ConsoleColor.Red;      break;
-                case 5: Console.BackgroundColor = ConsoleColor.Yellow;   break;
-                case 6: Console.BackgroundColor = ConsoleColor.DarkRed;  break;
-                case 7: Console.BackgroundColor = ConsoleColor.DarkGray; break;
-                case 8: Console.BackgroundColor = ConsoleColor.Magenta;  break;
-            }
-        }
-        public void SetObjectColour(int id)
-        {
-            switch (id)
-            {
-                case 0: Console.ForegroundColor = ConsoleColor.Black;    break;
-                case 1: Console.ForegroundColor = ConsoleColor.White;    break;
-                case 2: Console.ForegroundColor = ConsoleColor.Green;    break;
-                case 3: Console.ForegroundColor = ConsoleColor.Blue;     break;
-                case 4: Console.ForegroundColor = ConsoleColor.Red;      break;
-                case 5: Console.ForegroundColor = ConsoleColor.Yellow;   break;
-                case 6: Console.ForegroundColor = ConsoleColor.DarkRed;  break;
-                case 7: Console.ForegroundColor = ConsoleColor.DarkGray; break;
-                case 8: Console.ForegroundColor = ConsoleColor.Magenta;  break;
-            }
-        }
-        public void ResetColour(int back=0,int obj=1)
-        {
-            SetBackgroundColour(back);
-            SetObjectColour(obj);
-        }
         //visual basics
         public void BreakLine() { Console.WriteLine(); } 
         public void vSpacer()
@@ -148,20 +112,20 @@ namespace Ceroes_
         }
         public void hLine()
         {
-            SetBackgroundColour(7);
+            Visual.SetBackgroundColour(7);
             Console.Write("║");
-            ResetColour();
+            Visual.ResetColour();
         }
         //hud elements
         private void HoriznotalLine(bool corners = true, bool newLine = true)
         {
             hSpacer();
-            SetBackgroundColour(7);
+            Visual.SetBackgroundColour(7);
             Console.Write("╬");
             for (int border = 0; border < mapa.x; border++) { Console.Write("═"); }
             Console.Write("╬");
             if (newLine) Console.WriteLine();
-            ResetColour();
+            Visual.ResetColour();
         }
         public void DrawBox(List<string> Lines)
         {
@@ -212,40 +176,38 @@ namespace Ceroes_
             }
             toReturn.Add(" ");
             toReturn.Add("Units");
-            toReturn.Add(Convert.ToString(unitsStacks));
+            for(int i = 0; i < unitsStacks; i++)
+            {
+                toReturn.Add(Object.Hero.list[Program.heroId].Units[i].BfSymbol +" "+Object.Hero.list[Program.heroId].Units[i].name + ": " + Object.Hero.list[Program.heroId].Units[i].stack);
+            }
             return toReturn;
         }
 
         public void PrintPlane()
         {
             toDraw = RightMapBoxValues();
- 
             vSpacer();
             HoriznotalLine(true,false);
             DrawRightMapBox(0);
             for (int i = 0; i < y; i++)
             {
-                hSpacer();
-              
+                hSpacer();         
                 for (int j = 0; j < x; j++)
                 {
-                    
-                    ResetColour();
+                    Visual.ResetColour();
                     if (j == 0) { hLine(); }
 
-
-                    SetBackgroundColour(background[j][i]);
+                    Visual.SetBackgroundColour(background[j][i]);
                     int print = plane[j][i];
-                    if (print >0&& print<5) { SetObjectColour(Object.ReturnColor(j, i)); }
-                    else if (print > 4 && print < 9) { SetObjectColour(0); SetBackgroundColour(Resources.Color(Visual.mapSymbols[print])); }
+                    if (print >0&& print<5) { Visual.SetObjectColour(Object.ReturnColor(j, i)); }
+                    else if (print > 4 && print < 9) { Visual.SetObjectColour(0); Visual.SetBackgroundColour(Resources.Color(Visual.mapSymbols[print])); }
                     Console.Write(Visual.mapSymbols[plane[j][i]]);
 
-
-                    ResetColour();
+                    Visual.ResetColour();
                     if (j == x - 1) { hLine(); }
                 }
                 DrawRightMapBox(i+1);
-                SetBackgroundColour(0);
+                Visual.SetBackgroundColour(0);
                 Console.WriteLine();
             }
             HoriznotalLine();

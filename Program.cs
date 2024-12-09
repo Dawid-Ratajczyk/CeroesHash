@@ -19,6 +19,7 @@ namespace Ceroes_
         public static bool gameLoopRunning = true;
        
         public static Technical.Select TownMenu = new Technical.Select(new List<string>() { "Buy Units", "Build Building", "Exit" });
+        public static Technical.Select BuyUnitMenu = new Technical.Select(new List<string>() { "Buy " + Unit.All[0].name, "Buy " + Unit.All[1].name, "Exit" });
 
         //public static Map mapa;
         static void TechnicalSetup()
@@ -28,6 +29,10 @@ namespace Ceroes_
         static void GameSetup()
         {
             Object.Initialization();
+            Object.Hero.list[0].Units.Add(Unit.Soldier);
+            Object.Hero.list[0].Units[0].stack=10;
+            Object.Hero.list[0].Units.Add(Unit.Knight);
+            Object.Hero.list[0].Units[1].stack = 5;
         }
         void HeroPick(int id)
         {
@@ -84,11 +89,24 @@ namespace Ceroes_
             {
                 switch(TownMenu.Choice())
                 {
-                    case 1: break;
+                    case 0: BuyUnitsMenu(); break;
                 }
 
             }
         }
+        static void BuyUnitsMenu() 
+        {
+            int amount = 0;
+            int choice = BuyUnitMenu.Choice();
+            if(choice!=BuyUnitMenu.count-1)
+            {
+                amount = Convert.ToInt32(Technical.Input("Buy " + Unit.All[choice].name));
+                Unit.Purchase(choice,heroId,amount);
+            }
+                
+                    
+        }
+        
         static void GameLoop()
         {
             while(gameLoopRunning)

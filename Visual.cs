@@ -9,7 +9,7 @@ namespace Ceroes_
     {
         static public string[] mapSymbols = {" ", "ȸ", "▄", "░"," ","G","W","S","C" };
         static public string[] mapNames = { "Air", "Hero" ,"Castle","Banner","Barrier","Gold","Wood","Stone","Crystal"};
-        
+        static public string[] unitSymbols = { " " };
         
         public static int PlayerColour(int Id)
         {
@@ -47,6 +47,48 @@ namespace Ceroes_
         {
             Console.Write("│");
         }
+        public static void ColoredString(string text,int objectColor,int backColor=0)
+        {
+           SetObjectColour(objectColor);
+           SetBackgroundColour(backColor);
+           Console.Write(text);
+           ResetColour();
 
+        }
+        public static void SetBackgroundColour(int id)
+        {
+            switch (id)
+            {
+                case 0: Console.BackgroundColor = ConsoleColor.Black; break;
+                case 1: Console.BackgroundColor = ConsoleColor.White; break;
+                case 2: Console.BackgroundColor = ConsoleColor.Green; break;
+                case 3: Console.BackgroundColor = ConsoleColor.Blue; break;
+                case 4: Console.BackgroundColor = ConsoleColor.Red; break;
+                case 5: Console.BackgroundColor = ConsoleColor.Yellow; break;
+                case 6: Console.BackgroundColor = ConsoleColor.DarkRed; break;
+                case 7: Console.BackgroundColor = ConsoleColor.DarkGray; break;
+                case 8: Console.BackgroundColor = ConsoleColor.Magenta; break;
+            }
+        }
+        public static void SetObjectColour(int id)
+        {
+            switch (id)
+            {
+                case 0: Console.ForegroundColor = ConsoleColor.Black; break;
+                case 1: Console.ForegroundColor = ConsoleColor.White; break;
+                case 2: Console.ForegroundColor = ConsoleColor.Green; break;
+                case 3: Console.ForegroundColor = ConsoleColor.Blue; break;
+                case 4: Console.ForegroundColor = ConsoleColor.Red; break;
+                case 5: Console.ForegroundColor = ConsoleColor.Yellow; break;
+                case 6: Console.ForegroundColor = ConsoleColor.DarkRed; break;
+                case 7: Console.ForegroundColor = ConsoleColor.DarkGray; break;
+                case 8: Console.ForegroundColor = ConsoleColor.Magenta; break;
+            }
+        }
+        public static void ResetColour(int back = 0, int obj = 1)
+        {
+            SetBackgroundColour(back);
+            SetObjectColour(obj);
+        }
     }
 }

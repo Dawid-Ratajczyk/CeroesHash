@@ -52,7 +52,7 @@ namespace Ceroes_
         public class Select
         {
             int index;
-            int count;
+            public int count;
             List<string> ToDraw;
             
             public Select(List<string> Lines)
@@ -62,7 +62,7 @@ namespace Ceroes_
                 ToDraw = Lines;
                 
             }
-            public int Choice()
+            public int Choice(bool exit=true)
             {
                 Console.Clear();
                 int longestString = ToDraw.Aggregate("", (max, cur) => max.Length > cur.Length ? max : cur).Length;
@@ -74,6 +74,7 @@ namespace Ceroes_
                     
                     for (int i = 0; i < count; i++) 
                     {
+                        if(i==count-1&&exit) { Console.WriteLine(); }
                         Map.mapa.hSpacer();
                         Map.mapa.hSpacer();
                         string drawing = "";
