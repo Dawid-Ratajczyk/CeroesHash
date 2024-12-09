@@ -18,7 +18,7 @@ namespace Ceroes_
         public static int stateId = 0; //0-map 1-town 2-combat
         public static bool gameLoopRunning = true;
        
-        public static Technical.Select TownMenu = new Technical.Select(new List<string>() { "A", "B", "C" });
+        public static Technical.Select TownMenu = new Technical.Select(new List<string>() { "Buy Units", "Build Building", "Exit" });
 
         //public static Map mapa;
         static void TechnicalSetup()
@@ -28,6 +28,7 @@ namespace Ceroes_
         static void GameSetup()
         {
             Object.Initialization();
+            Map.mapa.SaveCurrentMapJSon("3.json");
         }
         void HeroPick(int id)
         {
@@ -49,6 +50,9 @@ namespace Ceroes_
                 case "A": moveX=-1; break;
                 //action
                 case "X": Interact();break;
+                case "L": Map.mapa.LoadMap(Convert.ToString(Technical.SetValue("Load Map")));break;
+                case "P": Map.mapa.SaveCurrentMapJSon(Convert.ToString(Technical.SetValue("Load Map")));break;
+                case "U": Technical.SetValue("AAA");break;
                  
             }
             int nextSpotX = moveX + Object.Hero.list[heroId].x, nextSpotY = Object.Hero.list[heroId].y + moveY;
@@ -74,15 +78,16 @@ namespace Ceroes_
                 Map.mapa.Move(Object.Hero.list[heroId].x, Object.Hero.list[heroId].y, moveX, moveY);
                 Object.Hero.list[heroId].x += moveX;
                 Object.Hero.list[heroId].y += moveY;
-
-
             }
         }
         static void Interact()
         {
             if(Map.mapa.IsInteractingWithBuilding(Object.Hero.list[Program.player].x, Object.Hero.list[Program.player].y))
             {
-
+                switch(TownMenu.Choice())
+                {
+                    case 1: break;
+                }
 
             }
         }

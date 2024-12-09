@@ -57,12 +57,12 @@ namespace Ceroes_
             }
         }
 
-        public class Hero:Object
+        public class Hero : Object
         {
-            public const int mapId= 1;
+            public const int mapId = 1;
             public int id = 1;
             public int playerId;
-            public List<Unit> Units = new List<Unit>();
+            public List<Unit> Units = new List<Unit>(){};
 
             public static List<Hero> list = new List<Hero> { new Hero("Player", 1, 1, 0, 0), new Hero("Oponent", 4, 4, 1, 1) };
             public bool controlled = true;

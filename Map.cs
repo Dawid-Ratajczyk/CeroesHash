@@ -8,13 +8,15 @@ using System.Runtime.Versioning;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.Json;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Ceroes_
 {
     internal class Map
     {
         public static Material mapm;
-        public static Map mapa = new Map(40,30);
+        public static Map mapa = new Map(30,15);
         private static List<string> toDraw = new List<string> { };
         public int size,x,y;
         public int sideS;
@@ -42,7 +44,7 @@ namespace Ceroes_
             this.plane =EmptyPlane(0);
             this.background=EmptyPlane(2);
             this.sideS = x / 2;
-            this.plane[2][2] = 8;
+            //this.plane[2][2] = 8;
         }
         public void SaveCurrentMap()
         {
@@ -69,12 +71,23 @@ namespace Ceroes_
             jsonString += System.Environment.NewLine;
             for (int i = 0; i < Object.Building.list.Count; i++)
             {
-                jsonString += JsonSerializer.Serialize(Object.Building.list[i].name+" "+ Object.Building.list[i].x+ " " + Object.Building.list[i].y+ " " + Object.Building.list[i].id+ " " + Object.Building.list[i].color);
+                jsonString += System.Text.Json.JsonSerializer.Serialize(Object.Building.list[i].name+" "+ Object.Building.list[i].x+ " " + Object.Building.list[i].y+ " " + Object.Building.list[i].id+ " " + Object.Building.list[i].color);
                 jsonString += System.Environment.NewLine;
             }  
             File.WriteAllText(fileName, jsonString);
         }
-        
+        public void SaveCurrentMapJSon(string fileName)
+        {
+            File.WriteAllText(fileName, Newtonsoft.Json.JsonConvert.SerializeObject(Map.mapa));
+        }
+        public void LoadMap(string mapChoice)
+        {
+            using (StreamReader file = File.OpenText(mapChoice))
+            using (JsonTextReader reader = new JsonTextReader(file))
+            {
+                mapa=Newtonsoft.Json.JsonConvert.DeserializeObject<Map>(File.ReadAllText(mapChoice));
+            }
+        }
         //color
         public void SetBackgroundColour(int id)
         {
@@ -152,8 +165,7 @@ namespace Ceroes_
         public void DrawBox(List<string> Lines)
         {
             Lines = new List<string> {"X: ", Convert.ToString(Object.Hero.list[0].x), Convert.ToString(Object.Hero.list[0].y) };
-            
-            
+
             BreakLine();
             HoriznotalLine();
             hSpacer();
@@ -174,8 +186,6 @@ namespace Ceroes_
         }
         public void DrawRightMapBox(int line)
         {
-            
-           
             hSpacer(5);
 
             if (line == 0) { Visual.SideBoxLine(sideS-1,true); }
@@ -199,6 +209,10 @@ namespace Ceroes_
             toDraw = new List<string> { };
             //toDraw.Add("Player: " + Program.player);
             for (int i = 0; i < Resources.typesAmout; i++) { toDraw.Add(Convert.ToString(Player.list[Program.player].Resources[i])); }
+            for (int i=toDraw.Count;i<toDraw.Count+5;i++) 
+            {
+            
+            }
 
             vSpacer();
             HoriznotalLine(true,false);

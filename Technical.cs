@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -35,6 +36,19 @@ namespace Ceroes_
             }
             return value;
         }
+        public static int SetValue(string text)
+        {
+            Console.Clear();
+            Map.mapa.vSpacer();
+            Map.mapa.vSpacer();
+            Map.mapa.hSpacer();
+            Map.mapa.hSpacer();
+            Console.WriteLine(text);
+            Map.mapa.hSpacer();
+            Map.mapa.hSpacer();
+            int ret = Convert.ToInt32(Console.ReadLine());
+            return ret;
+        }
         public class Select
         {
             int index;
@@ -51,11 +65,13 @@ namespace Ceroes_
             public int Choice()
             {
                 Console.Clear();
+                int longestString = ToDraw.Aggregate("", (max, cur) => max.Length > cur.Length ? max : cur).Length;
 
                 while (true)
                 {
                     Map.mapa.vSpacer();
                     Map.mapa.vSpacer();
+                    
                     for (int i = 0; i < count; i++) 
                     {
                         Map.mapa.hSpacer();
@@ -64,7 +80,7 @@ namespace Ceroes_
                         if(i == index) drawing+="-> ";
                         drawing+=ToDraw[i];
                         if (i == index)drawing+=" <-";
-                        Visual.CenterText(drawing, 10);
+                        Visual.CenterText(drawing, longestString+6);
                         Console.WriteLine();
                     }
                     string key = Technical.KeyPress();
