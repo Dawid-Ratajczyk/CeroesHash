@@ -36,7 +36,7 @@ namespace Ceroes_
             }
             return value;
         }
-        public static int SetValue(string text)
+        public static string Input(string text)
         {
             Console.Clear();
             Map.mapa.vSpacer();
@@ -46,7 +46,7 @@ namespace Ceroes_
             Console.WriteLine(text);
             Map.mapa.hSpacer();
             Map.mapa.hSpacer();
-            int ret = Convert.ToInt32(Console.ReadLine());
+            string ret = Console.ReadLine();
             return ret;
         }
         public class Select

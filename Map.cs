@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.MemoryMappedFiles;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -16,7 +17,7 @@ namespace Ceroes_
     internal class Map
     {
         public static Material mapm;
-        public static Map mapa = new Map(30,15);
+        public static Map mapa = new Map(30,16);
         private static List<string> toDraw = new List<string> { };
         public int size,x,y;
         public int sideS;
@@ -188,32 +189,37 @@ namespace Ceroes_
         {
             hSpacer(5);
 
-            if (line == 0) { Visual.SideBoxLine(sideS-1,true); }
-            else if (line <= toDraw.Count) { Visual.SideBoxStick(); }
+            if (line == 0) { Visual.SideBoxLine(sideS,true); }
+            if (line ==3||line==8 ) { Visual.SideBoxLine(sideS, false); }
 
-            if (line > 0 && line <= toDraw.Count)
-            { Visual.CenterText(Resources.names[line-1]+": " +toDraw[line - 1], (x/2)); Visual.SideBoxStick(); }
+            if (line > 0 && line <= toDraw.Count&& line!=3&&line!=8)
+            { Visual.SideBoxStick(); Visual.CenterText(toDraw[line-1],(x/2)+1); Visual.SideBoxStick(); }
             
-            if (line == toDraw.Count + 1)
-            {  Visual.SideBoxLine(sideS-1); }    
+            if (line == toDraw.Count + 1){Visual.SideBoxLine(sideS); }    
             if(line>toDraw.Count+1)hSpacer(sideS+3);
         }
-
-        private void ObjectFromString(Player player1, Player player2, string v)
+        public List<string> RightMapBoxValues()
         {
-            throw new NotImplementedException();
+            int unitsStacks = Object.Hero.list[Program.heroId].Units.Count;
+            List<string> toReturn = new List<string> { };
+            int spacer = 3;
+            toReturn.Add("Player " + Program.player);
+            toReturn.Add("Hero " + Program.heroId);
+            toReturn.Add(" ");
+            for (int i = spacer; i < Resources.typesAmout+spacer; i++)
+            {
+                toReturn.Add(Convert.ToString( Material.Resources[i-spacer].name +": "+Player.list[Program.player].Resources[i-spacer])); 
+            }
+            toReturn.Add(" ");
+            toReturn.Add("Units");
+            toReturn.Add(Convert.ToString(unitsStacks));
+            return toReturn;
         }
 
         public void PrintPlane()
         {
-            toDraw = new List<string> { };
-            //toDraw.Add("Player: " + Program.player);
-            for (int i = 0; i < Resources.typesAmout; i++) { toDraw.Add(Convert.ToString(Player.list[Program.player].Resources[i])); }
-            for (int i=toDraw.Count;i<toDraw.Count+5;i++) 
-            {
-            
-            }
-
+            toDraw = RightMapBoxValues();
+ 
             vSpacer();
             HoriznotalLine(true,false);
             DrawRightMapBox(0);

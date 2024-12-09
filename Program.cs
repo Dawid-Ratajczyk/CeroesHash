@@ -28,7 +28,6 @@ namespace Ceroes_
         static void GameSetup()
         {
             Object.Initialization();
-            Map.mapa.SaveCurrentMapJSon("3.json");
         }
         void HeroPick(int id)
         {
@@ -50,10 +49,9 @@ namespace Ceroes_
                 case "A": moveX=-1; break;
                 //action
                 case "X": Interact();break;
-                case "L": Map.mapa.LoadMap(Convert.ToString(Technical.SetValue("Load Map")));break;
-                case "P": Map.mapa.SaveCurrentMapJSon(Convert.ToString(Technical.SetValue("Load Map")));break;
-                case "U": Technical.SetValue("AAA");break;
-                 
+                case "L": Map.mapa.LoadMap(Technical.Input("Load Map"));break;
+                case "P": Map.mapa.SaveCurrentMapJSon(Technical.Input("Save Map"));break;
+                case "U": Technical.Input("AAA");break;
             }
             int nextSpotX = moveX + Object.Hero.list[heroId].x, nextSpotY = Object.Hero.list[heroId].y + moveY;
             int thingSpot = Map.mapa.Thing(nextSpotX, nextSpotY);
