@@ -16,8 +16,8 @@ namespace Ceroes_
         public int health, damage, tier;
         public string name;
         public string BfSymbol;// battelfield symbol
-        int gprice = 0;//gold price
-        int cprice = 0;//crystal price
+        public int gprice = 0;//gold price
+        public int cprice = 0;//crystal price
 
         public Unit(int Health, int Damage, int Tier, string Name,string bfSymbol,int gPrice=0,int cPrice=0)
         {
@@ -32,7 +32,6 @@ namespace Ceroes_
         }
         public static void Purchase(int unitId, int heroId, int amount=0)
         {
-            
             int playerId = Object.Hero.list[heroId].playerId;
 
             int crystalCost = amount * All[unitId].cprice;

@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Numerics;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
+using System.Transactions;
 
 namespace Ceroes_
 {
@@ -49,6 +52,53 @@ namespace Ceroes_
             string ret = Console.ReadLine();
             return ret;
         }
+        public static int BuyAmountSelect(int unitId,int playerId)
+        {
+            Unit current =Unit.All[unitId];
+            string symbol = current.BfSymbol;
+            int cPrice = current.cprice, gPrice = current.gprice,index = 0; 
+            if (cPrice==0) {}
+            int maxGold = Player.list[playerId].Resources[0] / gPrice;
+            int maxCrystal = maxGold;
+            if(cPrice!=0) { maxCrystal = Player.list[playerId].Resources[3] / cPrice; }
+            int maxAmount=maxGold; if (maxGold > maxCrystal) maxAmount = maxCrystal;//max amount of units to buy
+
+            while (true)
+            {
+                Console.Clear();
+                Map.mapa.vSpacer();
+                Map.mapa.vSpacer();
+                string bar = "<";
+                for(int i = 0; i <= maxAmount; i++) 
+                {
+                    if (index == i) { bar += "☐"; }
+                    else bar += "-";
+                }
+                bar+= ">"; 
+
+                Visual.hSpacer(60); Visual.ColoredString("╬═══╬", Player.list[playerId].color,true ,0);
+                Visual.hSpacer(60); Visual.ColoredString("║ "+symbol+" ║", Player.list[playerId].color, true,0);
+                Visual.hSpacer(60); Visual.ColoredString("╬═══╬", Player.list[playerId].color,true, 0);
+                Console.WriteLine();
+                Visual.hSpacer(60); Visual.ColoredString(current.name, 1, true, 0);
+                Console.WriteLine();
+                Visual.hSpacer(50); Visual.CenterText(bar,26); Console.WriteLine();
+                Visual.hSpacer(62); Console.WriteLine(index);
+                string key = Technical.KeyPress();
+                switch (key)
+                {
+                    case "A": index = Increment(index, -1, 0); break;
+                    case "D": index = Increment(index, 1, maxAmount ); break;
+                    case "X": return index;
+                }
+                //Thread.Sleep(200);
+                Console.Clear();
+
+             
+                
+            }
+            return 0;
+        }
         public class Select
         {
             int index;
@@ -91,8 +141,10 @@ namespace Ceroes_
                         case "S": index = Increment(index, 1, count - 1); break;
                         case "X": return index;
                     }
+                    //Thread.Sleep(200);
                     Console.Clear();
                 }
+                
             }
 
 

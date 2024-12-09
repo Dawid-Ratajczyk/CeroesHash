@@ -167,7 +167,7 @@ namespace Ceroes_
             int unitsStacks = Object.Hero.list[Program.heroId].Units.Count;
             List<string> toReturn = new List<string> { };
             int spacer = 3;
-            toReturn.Add("Player " + Program.player);
+            toReturn.Add("Player " + Player.list[Program.player].name);
             toReturn.Add("Hero " + Program.heroId);
             toReturn.Add(" ");
             for (int i = spacer; i < Resources.typesAmout+spacer; i++)

@@ -22,6 +22,13 @@ namespace Ceroes_
             return 0;
 
         }
+        public static void hSpacer(int space = 35)
+        {
+            for (int i = 0; i < space; i++)
+            {
+                Console.Write(" ");
+            }
+        }
         public static void CenterText(string text,int space)
         {
             int length = space-text.Length;
@@ -47,11 +54,12 @@ namespace Ceroes_
         {
             Console.Write("│");
         }
-        public static void ColoredString(string text,int objectColor,int backColor=0)
+        public static void ColoredString(string text,int objectColor,bool nL=false,int backColor=0)
         {
            SetObjectColour(objectColor);
            SetBackgroundColour(backColor);
            Console.Write(text);
+            if(nL) Console.WriteLine();
            ResetColour();
 
         }

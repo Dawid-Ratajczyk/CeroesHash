@@ -56,7 +56,8 @@ namespace Ceroes_
                 case "X": Interact();break;
                 case "L": Map.mapa.LoadMap(Technical.Input("Load Map"));break;
                 case "P": Map.mapa.SaveCurrentMapJSon(Technical.Input("Save Map"));break;
-                case "U": Technical.Input("AAA");break;
+                case "U": Technical.BuyAmountSelect(0,player);break;
+                case "J": player=Technical.Flip(player); heroId = Technical.Flip(heroId); break;
             }
             int nextSpotX = moveX + Object.Hero.list[heroId].x, nextSpotY = Object.Hero.list[heroId].y + moveY;
             int thingSpot = Map.mapa.Thing(nextSpotX, nextSpotY);
@@ -100,11 +101,9 @@ namespace Ceroes_
             int choice = BuyUnitMenu.Choice();
             if(choice!=BuyUnitMenu.count-1)
             {
-                amount = Convert.ToInt32(Technical.Input("Buy " + Unit.All[choice].name));
+                amount = Technical.BuyAmountSelect(choice, player);
                 Unit.Purchase(choice,heroId,amount);
-            }
-                
-                    
+            }       
         }
         
         static void GameLoop()
