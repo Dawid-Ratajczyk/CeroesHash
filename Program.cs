@@ -7,6 +7,8 @@ using System.Runtime.InteropServices;
 using System.Data;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Ceroes_
 {
@@ -38,7 +40,7 @@ namespace Ceroes_
         {
             heroId=id;
         }
-       
+   
 
         static void PlayerAction()
         {            
@@ -58,6 +60,8 @@ namespace Ceroes_
                 case "P": Map.mapa.SaveCurrentMapJSon(Technical.Input("Save Map"));break;
                 case "U": Technical.BuyAmountSelect(0,player);break;
                 case "J": player=Technical.Flip(player); heroId = Technical.Flip(heroId); break;
+                case "K": Map.SaveState(); break;
+                case "M": Map.LoadState(); break;
             }
             int nextSpotX = moveX + Object.Hero.list[heroId].x, nextSpotY = Object.Hero.list[heroId].y + moveY;
             int thingSpot = Map.mapa.Thing(nextSpotX, nextSpotY);

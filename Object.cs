@@ -77,6 +77,7 @@ namespace Ceroes_
                 playerId = player;
                 id = Id;
             }
+            public Hero() { }
         }
         public class Building:Object
         {
@@ -96,6 +97,7 @@ namespace Ceroes_
                 y = Y;
                 color = Color;
             }
+            public Building() { }
             public static void Placement()
             {
                 for(int i  = 0; i < Building.list.Count; i++) 

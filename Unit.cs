@@ -30,6 +30,7 @@ namespace Ceroes_
             this.gprice = gPrice;
             this.cprice = cPrice;
         }
+        public Unit() { }
         public static void Purchase(int unitId, int heroId, int amount=0)
         {
             int playerId = Object.Hero.list[heroId].playerId;

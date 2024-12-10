@@ -11,6 +11,7 @@ using System.Text;
 using System.Text.Json;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Threading;
 
 namespace Ceroes_
 {
@@ -89,6 +90,75 @@ namespace Ceroes_
                 mapa=Newtonsoft.Json.JsonConvert.DeserializeObject<Map>(File.ReadAllText(mapChoice));
             }
         }
+        public static void SaveState(string file="state")
+        {
+            List<object> State = new List<object>() {Player.list,Object.Hero.list, Object.Building.list};
+            File.WriteAllText(file, Newtonsoft.Json.JsonConvert.SerializeObject(State));
+        }
+        public static void LoadState(string fileName = "state") 
+        {
+            List<object> Heroes = new List<object>(); List<object> Players = new List<object>(); List<object> Buildings = new List<object>();
+            dynamic State; ;
+            using (StreamReader file = File.OpenText(fileName))
+            using (JsonTextReader reader = new JsonTextReader(file))
+            {
+                State = Newtonsoft.Json.JsonConvert.DeserializeObject<List<List<object>>>(File.ReadAllText(fileName));
+            }
+            Player.list.Clear();
+            Object.Hero.list.Clear();
+            Object.Building.list.Clear();
+
+            for(int i = 0; i < State[0].Count; i++)
+            {
+                Player Load = new Player();
+                Load.color = State[0][i].color;
+                for(int j=0; j < State[0][i].Resources.Count;j++)
+                {
+                     
+                    dynamic u = State[0][i].Resources[j];
+                    int add = u;
+                    Load.Resources.Add(add);
+                }
+                Player.list.Add(Load);
+            }
+            for (int i = 0; i < State[1].Count; i++)
+            {
+                Object.Hero Load = new Object.Hero();
+                Load.x = State[1][i].x;
+                Load.y = State[1][i].y;
+                Load.color = State[1][i].color;
+                Load.id = State[1][i].id;
+                Load.name = State[1][i].name;
+                Load.playerId = State[1][i].playerId;
+                for(int j = 0; j< State[1][i].Units.Count;j++)
+                {
+                    dynamic u = State[1][i].Units[j];
+                    Unit New = new Unit();
+                    New.health = u.health;
+                    New.health = u.damage;
+                    New.tier = u.tier;
+                    New.name = u.name;
+                    New.BfSymbol = u.BfSymbol;
+                    New.healthMax = u.healthMax;
+                    Load.Units.Add(New);
+                }
+                Object.Hero.list.Add(Load);
+            }
+            for(int i = 0; i < State[2].Count;i++)
+            {
+                dynamic u = State[2][i];
+                Object.Building Load = new Object.Building();
+                Load.x = u.x;
+                Load.y = u.y;
+                Load.name= u.name;
+                Load.id = u.id;
+                Load.color= u.color;
+                Object.Building.list.Add(Load);
+            }
+            Object.Initialization();
+            Thread.Sleep(1000);
+            
+        }
         //visual basics
         public void BreakLine() { Console.WriteLine(); } 
         public void vSpacer()
@@ -110,20 +180,23 @@ namespace Ceroes_
             vSpacer();
             hSpacer();
         }
-        public void hLine()
+        public void hLine(int color=1)
         {
             Visual.SetBackgroundColour(7);
-            Console.Write("║");
+            Visual.ColoredString("║", Player.list[Program.player].color,false,1);
             Visual.ResetColour();
         }
         //hud elements
-        private void HoriznotalLine(bool corners = true, bool newLine = true)
+        private void HoriznotalLine(bool corners = true, bool newLine = true,int color=1)
         {
             hSpacer();
-            Visual.SetBackgroundColour(7);
-            Console.Write("╬");
-            for (int border = 0; border < mapa.x; border++) { Console.Write("═"); }
-            Console.Write("╬");
+            string bar = "╬";
+           // Visual.SetBackgroundColour(7);
+           // Console.Write("╬");
+            for (int border = 0; border < mapa.x; border++) { bar+="═"; }
+            //Console.Write("╬");
+            bar += "╬";
+            Visual.ColoredString(bar, Player.list[Program.player].color, false, 1);
             if (newLine) Console.WriteLine();
             Visual.ResetColour();
         }

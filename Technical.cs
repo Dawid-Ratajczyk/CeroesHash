@@ -71,7 +71,7 @@ namespace Ceroes_
                 string bar = "<";
                 for(int i = 0; i <= maxAmount; i++) 
                 {
-                    if (index == i) { bar += "☐"; }
+                    if (index == i) { bar += "Θ"; }
                     else bar += "-";
                 }
                 bar+= ">"; 
@@ -81,7 +81,7 @@ namespace Ceroes_
                 Visual.hSpacer(60); Visual.ColoredString("╬═══╬", Player.list[playerId].color,true, 0);
                 Console.WriteLine();
                 Visual.hSpacer(60); Visual.ColoredString(current.name, 1, true, 0);
-                Console.WriteLine();
+                Visual.hSpacer(60); Console.WriteLine(" buy");
                 Visual.hSpacer(50); Visual.CenterText(bar,26); Console.WriteLine();
                 Visual.hSpacer(62); Console.WriteLine(index);
                 string key = Technical.KeyPress();
