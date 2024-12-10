@@ -43,6 +43,18 @@ namespace Ceroes_
             Object.Building.Placement();
             Object.PlaneInsertion();
         }
+        public static void RemovalFromPlane()
+        {
+            for (int i = 0; i < Building.list.Count; i++)
+            {
+                //if (Building.list[i].name=="Castle")
+                Map.mapa.plane[Building.list[i].x][Building.list[i].y] = 0;
+            }
+            for (int i = 0; i < Hero.list.Count; i++)
+            {
+                Map.mapa.plane[Hero.list[i].x][Hero.list[i].y] = 0;
+            }
+        }
         public static void PlaneInsertion()
         {
 

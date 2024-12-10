@@ -12,6 +12,7 @@ using System.Text.Json;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Threading;
+using System.Xml.Linq;
 
 namespace Ceroes_
 {
@@ -48,6 +49,18 @@ namespace Ceroes_
             this.sideS = x / 2;
             //this.plane[2][2] = 8;
         }
+
+        public void SaveGame(string filename="0")
+        {
+            SaveCurrentMapJSon(filename);
+            SaveState(filename+"st");
+        }
+        public void LoadGame(string filename="0") 
+        {
+            LoadMap(filename);
+            LoadState(filename + "st");
+        }
+
         public void SaveCurrentMap()
         {
             string jsonString = x+" "+y+System.Environment.NewLine;
@@ -104,6 +117,7 @@ namespace Ceroes_
             {
                 State = Newtonsoft.Json.JsonConvert.DeserializeObject<List<List<object>>>(File.ReadAllText(fileName));
             }
+            Object.RemovalFromPlane();
             Player.list.Clear();
             Object.Hero.list.Clear();
             Object.Building.list.Clear();
@@ -134,6 +148,7 @@ namespace Ceroes_
                 {
                     dynamic u = State[1][i].Units[j];
                     Unit New = new Unit();
+                    New.stack = u.stack;
                     New.health = u.health;
                     New.health = u.damage;
                     New.tier = u.tier;
@@ -159,6 +174,7 @@ namespace Ceroes_
             Thread.Sleep(1000);
             
         }
+       
         //visual basics
         public void BreakLine() { Console.WriteLine(); } 
         public void vSpacer()

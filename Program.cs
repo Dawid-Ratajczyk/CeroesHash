@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.ComponentModel.Design;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Numerics;
 
 namespace Ceroes_
 {
@@ -35,6 +36,7 @@ namespace Ceroes_
             Object.Hero.list[0].Units[0].stack=10;
             Object.Hero.list[0].Units.Add(Unit.Knight);
             Object.Hero.list[0].Units[1].stack = 5;
+            Map.mapa.plane[2][2] = 8;
         }
         void HeroPick(int id)
         {
@@ -60,8 +62,8 @@ namespace Ceroes_
                 case "P": Map.mapa.SaveCurrentMapJSon(Technical.Input("Save Map"));break;
                 case "U": Technical.BuyAmountSelect(0,player);break;
                 case "J": player=Technical.Flip(player); heroId = Technical.Flip(heroId); break;
-                case "K": Map.SaveState(); break;
-                case "M": Map.LoadState(); break;
+                case "K": Map.mapa.SaveGame(); break;
+                case "M": Map.mapa.LoadGame(); break;
             }
             int nextSpotX = moveX + Object.Hero.list[heroId].x, nextSpotY = Object.Hero.list[heroId].y + moveY;
             int thingSpot = Map.mapa.Thing(nextSpotX, nextSpotY);
