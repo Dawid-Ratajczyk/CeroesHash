@@ -69,6 +69,22 @@ namespace Ceroes_
                 Map.mapa.plane[Hero.list[i].x][Hero.list[i].y] = Hero.mapId;
             }
         }
+        public class Pointer:Object
+        {
+            public int savedThing, colorSaved,radius;
+            public string type;//area arrow line
+            public List<int> savedThings = new List<int>();
+            public List<int> savedColors = new List<int>();
+            public Pointer(string type,int x=0,int y=0,int savedThing=0, int colorSaved=0)
+            {
+                this.x = x;
+                this.y = y;
+                this.savedThing = savedThing;
+                this.colorSaved = colorSaved;
+                this.type = type;
+            }
+         
+        }
 
         public class Hero : Object
         {

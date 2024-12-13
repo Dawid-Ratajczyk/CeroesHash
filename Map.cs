@@ -13,6 +13,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Threading;
 using System.Xml.Linq;
+using System.Security;
 
 namespace Ceroes_
 {
@@ -21,6 +22,14 @@ namespace Ceroes_
         public static Material mapm;
         public static Map mapa = new Map(30,16); //map object
         public static List<int> pointer = new List<int>() { -1, -1, 0,0};//x y thing saved,arrow or color
+
+        public static Object.Pointer arrowPointer = new Object.Pointer("arrow" ,- 1, -1);
+        public static Object.Pointer areaPointer  = new Object.Pointer("area");
+        public static Object.Pointer squarePointer = new Object.Pointer("square");
+
+        public List<int> walkableThings=new List<int>(){9,5,6,7,8,10,11,12,0};
+        public List<int> walkableBack = new List<int>(){2,9,10};
+
         public static List<string> arrows = new List<string>() { "←", "→", "↑", "↓" };
         private static List<string> toDraw = new List<string> { };//right box to draw
         private static List<string> lowBoxDraw = new List<string> {};//low box to draw
@@ -50,7 +59,6 @@ namespace Ceroes_
             this.plane =EmptyPlane(0);
             this.background=EmptyPlane(2);
             this.sideS = x / 2;
-            //this.plane[2][2] = 8;
         }
 
         public void SaveGame(string filename="0")
@@ -290,8 +298,9 @@ namespace Ceroes_
 
                     Visual.SetBackgroundColour(background[j][i]);
                     int print = plane[j][i];
-                    if (print >0&& print<5) { Visual.SetObjectColour(Object.ReturnColor(j, i)); }
-                    else if (print > 4 && print < 9) { Visual.SetObjectColour(0); Visual.SetBackgroundColour(Resources.Color(Visual.mapSymbols[print])); }
+
+                    if (print >0&& print<5) { Visual.SetObjectColour(Object.ReturnColor(j, i)); }//if building or player
+                    else if (print > 4 && print < 9) { Visual.SetObjectColour(0); Visual.SetBackgroundColour(Resources.Color(Visual.mapSymbols[print])); }//if resource
                     Console.Write(Visual.mapSymbols[plane[j][i]]);
 
                     Visual.ResetColour();
@@ -303,38 +312,62 @@ namespace Ceroes_
                 Console.WriteLine();
             }
             HoriznotalLine();
-            lowBoxDraw = new List<string> {};
+            lowBoxDraw = new List<string> {};//reset lower box values
     }
         public void Select(int x,int y)
         {
             List<int> spots =FreeSpotsAround(x,y);
 
-           if ((pointer[0] < 0 || pointer[1]<0)==false)//if pointer exists erase earlier
+           if ((arrowPointer.x < 0 || arrowPointer.y<0)==false)//if pointer exists erase earlier
            {
-                if (pointer[3] == 0 && IsArrow(pointer[0], pointer[1]))//if object
+                if (arrowPointer.savedThing == 0 && IsArrow(arrowPointer.x, arrowPointer.y))//if object
                 {
-                    mapa.plane[pointer[0]][pointer[1]] = 0;
+                    mapa.plane[arrowPointer.x][arrowPointer.y] = 0;
                 }
-                else if(pointer[3]!=0) // if background
+                else if(arrowPointer.savedThing != 0) // if background
                 {
-                    mapa.background[pointer[0]][pointer[1]] = pointer[3];
+                    mapa.background[arrowPointer.x][arrowPointer.y] = arrowPointer.savedThing;
                 }
-
             }
             if (spots[2] != 0)//if place is not in object
             {
-                pointer[2] = mapa.plane[spots[0]][spots[1]];
+                arrowPointer.savedThing = mapa.plane[spots[0]][spots[1]];
                 mapa.plane[spots[0]][spots[1]] = spots[2];
-                pointer[3] = 0;
+                arrowPointer.colorSaved = 0;
             }
             else//if place is object
             {
-                pointer[3] = mapa.background[spots[0]][spots[1]];
+                arrowPointer.colorSaved = mapa.background[spots[0]][spots[1]];
                 mapa.background[spots[0]][spots[1]] = 9; 
             }
-            pointer[0] = spots[0];
-            pointer[1] = spots[1];
+            arrowPointer.x = spots[0];
+            arrowPointer.y = spots[1];
+        }
+        public void SelectSquare(int X, int Y,int size)
+        {
+            for(int i=0; i < size;i++)
+            {
+                for( int j=0; j < size;j++)
+                {
+                    areaPointer.savedColors.Add(mapa.background[X + i][Y + j]);
+                    Map.mapa.background[X+i][Y+j] = 9;
+                }
+            }
+        }
+        public void SelectAreaAround(int X, int Y, int Radius)
+        {
+            areaPointer.radius = Radius;
+            areaPointer.x = X;
+            areaPointer.y = Y;
 
+            for (int i = Radius; i >= 0; i--)
+            {
+                for (int j = (i*2)+1; j >0 ; j--)
+                {
+                    SetBack(X + i - j + 1, Y-Radius+i, 9);
+                    SetBack(X + i-j+1,Y+Radius-i,9);
+                }
+            }                    
         }
         //check
         public bool IsArrow(int x,int y)
@@ -373,10 +406,24 @@ namespace Ceroes_
         }
         public bool SpotEmpty(int X, int Y, bool checkForThing = true, bool ignoreArrows = true)
         {
-
-            if (((Map.mapa.plane[X][Y] == 0&&checkForThing==true)||(IsArrow(X,Y)&&ignoreArrows)) && Map.mapa.background[X][Y] == 2) return true;
+            if (X>=mapa.x || Y>=mapa.y|| X <0 || Y <0d) return false;
+            if (((IsWalkable(X,Y)&&checkForThing==true)||(IsArrow(X,Y)&&ignoreArrows)) && walkableBack.Contains(Map.mapa.background[X][Y])) return true;
             if (Map.mapa.background[X][Y] == 2&&checkForThing==false)return true; 
             return false;
+        }
+        public bool IsWalkable(int X, int Y, bool checkThing=true,bool checkBack=true)
+        {
+            if ((walkableBack.Contains(Back(X, Y))&&checkBack)&&(walkableThings.Contains(Thing(X, Y))&&checkThing))
+            {
+                return true; 
+            }
+            return false;
+                
+        }
+        public int Back(int X, int Y)
+        {
+            if (X >= 0 && Y >= 0 && Y <= mapa.y - 1 && X <= mapa.x - 1) return mapa.background[X][Y];
+            else return 0;
         }
         public int  Thing(int X,int Y)
         {
@@ -388,6 +435,7 @@ namespace Ceroes_
             if(thingId >4&&thingId<9) return true;
             else return false;
         }
+      
         //plane manipulation
         public void Teleport(int X, int Y,int fromX,int fromY)
         {
@@ -398,7 +446,10 @@ namespace Ceroes_
             plane[fromX + dirX][fromY + dirY] = plane[fromX][fromY];
             plane[fromX][fromY] = 0;
         }
-    
+        public void SetBack(int X,int Y,int color)
+        {
+            if (X >= 0&&Y>= 0) Map.mapa.background[X][Y] = color;
+        }
         public struct Resources
         {
             public static List<String> names = new List<string> { "Gold", "Wood", "Stone", "Crystal" };
@@ -423,6 +474,7 @@ namespace Ceroes_
                 return 0;
             }
         }
+
         public class Battlefield : Map
         {
             public static Battlefield fightfield = new Battlefield();
@@ -435,6 +487,7 @@ namespace Ceroes_
                 fightfield.PrintPlane();
             }
         }
+    
     }
  
 

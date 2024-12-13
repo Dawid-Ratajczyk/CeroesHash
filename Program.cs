@@ -68,7 +68,7 @@ namespace Ceroes_
                 case "I": heroId--;break;
                 case "K": Map.mapa.SaveGame(); break;
                 case "M": Map.mapa.LoadGame(); break;
-                case "B": break;
+                case "B": Map.mapa.SelectAreaAround(Object.Hero.list[heroId].x, Object.Hero.list[heroId].y,3); break;
                 case "Q": gameLoopRunning=false; break;
             }
             int nextSpotX = moveX + Object.Hero.list[heroId].x, nextSpotY = Object.Hero.list[heroId].y + moveY;

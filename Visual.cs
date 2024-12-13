@@ -77,6 +77,7 @@ namespace Ceroes_
                 case 7: Console.BackgroundColor = ConsoleColor.DarkGray; break;
                 case 8: Console.BackgroundColor = ConsoleColor.Magenta; break;
                 case 9: Console.BackgroundColor = ConsoleColor.DarkYellow;break;
+                case 10: Console.BackgroundColor = ConsoleColor.Yellow; break;
             }
         }
         public static void SetObjectColour(int id)
