@@ -7,8 +7,8 @@ namespace Ceroes_
 {
     internal class Visual
     {
-        static public string[] mapSymbols = {" ", "ȸ", "▄", "░"," ","G","W","S","C" };
-        static public string[] mapNames = { "Air", "Hero" ,"Castle","Banner","Barrier","Gold","Wood","Stone","Crystal"};
+        static public string[] mapSymbols = {" ", "ȸ", "▄", "░"," ","G","W","S","C", "←", "→", "↑", "↓" };
+        static public string[] mapNames = { "Air", "Hero" ,"Castle","Banner","Barrier","Gold","Wood","Stone","Crystal","Left","Right","Up","Down"};
         static public string[] unitSymbols = { " " };
         
         public static int PlayerColour(int Id)
@@ -76,6 +76,7 @@ namespace Ceroes_
                 case 6: Console.BackgroundColor = ConsoleColor.DarkRed; break;
                 case 7: Console.BackgroundColor = ConsoleColor.DarkGray; break;
                 case 8: Console.BackgroundColor = ConsoleColor.Magenta; break;
+                case 9: Console.BackgroundColor = ConsoleColor.DarkYellow;break;
             }
         }
         public static void SetObjectColour(int id)

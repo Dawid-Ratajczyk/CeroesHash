@@ -28,14 +28,15 @@ namespace Ceroes_
         static void TechnicalSetup()
         {
             Console.OutputEncoding = System.Text.Encoding.UTF8;
+            Console.SetWindowSize(Console.LargestWindowWidth, Console.LargestWindowHeight);
         }
         static void GameSetup()
         {
             Object.Initialization();
-            Object.Hero.list[0].Units.Add(Unit.Soldier);
-            Object.Hero.list[0].Units[0].stack=10;
-            Object.Hero.list[0].Units.Add(Unit.Knight);
-            Object.Hero.list[0].Units[1].stack = 5;
+           // Object.Hero.list[0].Units[0]=(Unit.Soldier);
+            //Object.Hero.list[0].Units[0].stack=10;
+            //Object.Hero.list[0].Units[1]=Unit.Knight;
+            //Object.Hero.list[0].Units[1].stack = 5;
             Map.mapa.plane[2][2] = 8;
         }
         void HeroPick(int id)
@@ -58,18 +59,24 @@ namespace Ceroes_
                 case "A": moveX=-1; break;
                 //action
                 case "X": Interact();break;
+                //debug
                 case "L": Map.mapa.LoadMap(Technical.Input("Load Map"));break;
                 case "P": Map.mapa.SaveCurrentMapJSon(Technical.Input("Save Map"));break;
                 case "U": Technical.BuyAmountSelect(0,player);break;
                 case "J": player=Technical.Flip(player); heroId = Technical.Flip(heroId); break;
+                case "O": heroId++;break;
+                case "I": heroId--;break;
                 case "K": Map.mapa.SaveGame(); break;
                 case "M": Map.mapa.LoadGame(); break;
+                case "B": break;
+                case "Q": gameLoopRunning=false; break;
             }
             int nextSpotX = moveX + Object.Hero.list[heroId].x, nextSpotY = Object.Hero.list[heroId].y + moveY;
             int thingSpot = Map.mapa.Thing(nextSpotX, nextSpotY);
             //move to empty spot
             if (Map.mapa.IsInside(nextSpotX, nextSpotY) && Map.mapa.SpotEmpty(nextSpotX, nextSpotY))
             {
+                
 
                 Map.mapa.Move(Object.Hero.list[heroId].x, Object.Hero.list[heroId].y, moveX, moveY);
                 Object.Hero.list[heroId].x += moveX;
@@ -92,7 +99,7 @@ namespace Ceroes_
         }
         static void Interact()
         {
-            if(Map.mapa.IsInteractingWithBuilding(Object.Hero.list[Program.player].x, Object.Hero.list[Program.player].y))
+            if(Map.mapa.IsInteractingWithBuilding(Object.Hero.list[Program.heroId].x, Object.Hero.list[Program.heroId].y))
             {
                 switch(TownMenu.Choice())
                 {
@@ -118,6 +125,7 @@ namespace Ceroes_
             {
 
                 //drawing image
+                Map.mapa.Select(Object.Hero.list[heroId].x, Object.Hero.list[heroId].y);
                 Map.mapa.PrintPlane();
                 Map.mapa.DrawBox(new List<string> {"a","b","c"});
               

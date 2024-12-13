@@ -6,6 +6,7 @@ namespace Ceroes_
 {
     internal class Unit
     {
+        public static Unit Blank =new Unit(0,0,0,"","");
         public static Unit Soldier = new Unit(10, 5, 1, "Soldier", "α",15);
         public static Unit Knight = new Unit(20, 10, 2, "Knight", "β",50,1);
         
@@ -42,8 +43,12 @@ namespace Ceroes_
             {
                 Player.list[playerId].Resources[0] -= goldCost;
                 Player.list[playerId].Resources[3] -= crystalCost;
-
-                Object.Hero.list[heroId].Units[unitId].stack += amount;
+                if (Object.Hero.list[heroId].Units[unitId].name =="")
+                {
+                    Object.Hero.list[heroId].Units[unitId]=(Unit.All[unitId]);
+                }
+                
+                Object.Hero.list[heroId].UnitsAmount[unitId] += amount;
             }
         }
     }

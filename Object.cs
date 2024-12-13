@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -74,9 +75,10 @@ namespace Ceroes_
             public const int mapId = 1;
             public int id = 1;
             public int playerId;
-            public List<Unit> Units = new List<Unit>(){};
+            public List<Unit> Units = new List<Unit>() {Unit.Blank, Unit.Blank, Unit.Blank, Unit.Blank, Unit.Blank};
+            public List<int> UnitsAmount =new List<int>() {0,0,0,0,0};
 
-            public static List<Hero> list = new List<Hero> { new Hero("Player", 1, 1, 0, 0), new Hero("Oponent", 4, 4, 1, 1) };
+            public static List<Hero> list = new List<Hero> { new Hero("Player", 1, 1, 0, 0), new Hero("Oponent", 6, 6, 1, 1), new Hero("Oponent2", 4, 4, 1, 2) };
             public bool controlled = true;
 
             public Hero(string Name, int X, int Y, int player,int Id)

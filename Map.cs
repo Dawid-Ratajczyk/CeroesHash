@@ -19,11 +19,14 @@ namespace Ceroes_
     internal class Map
     {
         public static Material mapm;
-        public static Map mapa = new Map(30,16);
-        private static List<string> toDraw = new List<string> { };
-        public int size,x,y;
+        public static Map mapa = new Map(30,16); //map object
+        public static List<int> pointer = new List<int>() { -1, -1, 0,0};//x y thing saved,arrow or color
+        public static List<string> arrows = new List<string>() { "←", "→", "↑", "↓" };
+        private static List<string> toDraw = new List<string> { };//right box to draw
+        private static List<string> lowBoxDraw = new List<string> {};//low box to draw
+        public int size,x,y;//map settings
         public int sideS;
-        public  List <List<int>> plane,background;
+        public  List <List<int>> plane,background;// map objects and background values
       
         private List<List<int>>EmptyPlane(int fillWith=0)
         {
@@ -90,7 +93,9 @@ namespace Ceroes_
                 jsonString += System.Environment.NewLine;
             }  
             File.WriteAllText(fileName, jsonString);
-        }
+        }//legacy
+       
+        //map loading and saving
         public void SaveCurrentMapJSon(string fileName)
         {
             File.WriteAllText(fileName, Newtonsoft.Json.JsonConvert.SerializeObject(Map.mapa));
@@ -218,8 +223,8 @@ namespace Ceroes_
         }
         public void DrawBox(List<string> Lines)
         {
-            Lines = new List<string> {"X: ", Convert.ToString(Object.Hero.list[0].x), Convert.ToString(Object.Hero.list[0].y) };
-
+            if (lowBoxDraw.Count == 0) { lowBoxDraw.Add(" "); }
+            Lines = lowBoxDraw;
             BreakLine();
             HoriznotalLine();
             hSpacer();
@@ -231,17 +236,12 @@ namespace Ceroes_
                 hLine();
                 BreakLine();
                 if(i!=Lines.Count-1)hSpacer();
-            }
-
-            /*
-            bool answear = IsInteractingWithBuilding(Object.Hero.list[Program.player].x, Object.Hero.list[Program.player].y);
-            Visual.CenterText(Convert.ToString(answear), x);*/       
+            }    
             HoriznotalLine();
         }
         public void DrawRightMapBox(int line)
         {
             hSpacer(5);
-
             if (line == 0) { Visual.SideBoxLine(sideS,true); }
             if (line ==3||line==8 ) { Visual.SideBoxLine(sideS, false); }
 
@@ -267,11 +267,13 @@ namespace Ceroes_
             toReturn.Add("Units");
             for(int i = 0; i < unitsStacks; i++)
             {
-                toReturn.Add(Object.Hero.list[Program.heroId].Units[i].BfSymbol +" "+Object.Hero.list[Program.heroId].Units[i].name + ": " + Object.Hero.list[Program.heroId].Units[i].stack);
+                if (Object.Hero.list[Program.heroId].Units[i].name != "")
+                    toReturn.Add(Object.Hero.list[Program.heroId].Units[i].BfSymbol + " " + Object.Hero.list[Program.heroId].Units[i].name + ": " + Object.Hero.list[Program.heroId].UnitsAmount[i]);
+                else toReturn.Add("");            
             }
             return toReturn;
         }
-
+        //main plane generation
         public void PrintPlane()
         {
             toDraw = RightMapBoxValues();
@@ -294,14 +296,63 @@ namespace Ceroes_
 
                     Visual.ResetColour();
                     if (j == x - 1) { hLine(); }
+
                 }
                 DrawRightMapBox(i+1);
                 Visual.SetBackgroundColour(0);
                 Console.WriteLine();
             }
             HoriznotalLine();
+            lowBoxDraw = new List<string> {};
+    }
+        public void Select(int x,int y)
+        {
+            List<int> spots =FreeSpotsAround(x,y);
+
+           if ((pointer[0] < 0 || pointer[1]<0)==false)//if pointer exists erase earlier
+           {
+                if (pointer[3] == 0 && IsArrow(pointer[0], pointer[1]))//if object
+                {
+                    mapa.plane[pointer[0]][pointer[1]] = 0;
+                }
+                else if(pointer[3]!=0) // if background
+                {
+                    mapa.background[pointer[0]][pointer[1]] = pointer[3];
+                }
+
+            }
+            if (spots[2] != 0)//if place is not in object
+            {
+                pointer[2] = mapa.plane[spots[0]][spots[1]];
+                mapa.plane[spots[0]][spots[1]] = spots[2];
+                pointer[3] = 0;
+            }
+            else//if place is object
+            {
+                pointer[3] = mapa.background[spots[0]][spots[1]];
+                mapa.background[spots[0]][spots[1]] = 9; 
+            }
+            pointer[0] = spots[0];
+            pointer[1] = spots[1];
+
         }
-        //checks
+        //check
+        public bool IsArrow(int x,int y)
+        {
+            if (mapa.plane[x][y] >= 9 && mapa.plane[x][y] <= 12) return true;
+            else return false;
+        }
+        public List<int> FreeSpotsAround(int x, int y)
+        {
+            if(x< 0 || y < 0) return new List<int>() {-1,-1};
+            if (SpotEmpty(x, y + 1, true)) { return new List<int>() { x, y + 1, 11 }; }
+            if (SpotEmpty(x, y - 1, true)) { return new List<int>() { x, y - 1, 12 }; }
+            if (SpotEmpty(x+1,y,true)){ return new List<int>() { x + 1, y,9};}
+            if (SpotEmpty(x -1, y, true)) { return new List<int>() { x - 1, y,10 }; }
+            
+         
+            else { return new List<int>() {x, y,0};}
+        }
         public bool IsInteractingWithBuilding(int X,int Y,int heroId=0,int buildingId=2)
         { 
             for(int i = 0; i < Object.Building.list.Count;i++)
@@ -320,9 +371,10 @@ namespace Ceroes_
             return answear;
             
         }
-        public bool SpotEmpty(int X,int Y, bool checkForThing=true)
+        public bool SpotEmpty(int X, int Y, bool checkForThing = true, bool ignoreArrows = true)
         {
-            if ((Map.mapa.plane[X][Y] == 0 && Map.mapa.background[X][Y] == 2)&&checkForThing==true) return true;
+
+            if (((Map.mapa.plane[X][Y] == 0&&checkForThing==true)||(IsArrow(X,Y)&&ignoreArrows)) && Map.mapa.background[X][Y] == 2) return true;
             if (Map.mapa.background[X][Y] == 2&&checkForThing==false)return true; 
             return false;
         }
@@ -346,6 +398,7 @@ namespace Ceroes_
             plane[fromX + dirX][fromY + dirY] = plane[fromX][fromY];
             plane[fromX][fromY] = 0;
         }
+    
         public struct Resources
         {
             public static List<String> names = new List<string> { "Gold", "Wood", "Stone", "Crystal" };
@@ -370,5 +423,19 @@ namespace Ceroes_
                 return 0;
             }
         }
-    }  
+        public class Battlefield : Map
+        {
+            public static Battlefield fightfield = new Battlefield();
+            public Battlefield() :base(20, 20)
+            {
+
+            }
+            public void neaw()
+            {
+                fightfield.PrintPlane();
+            }
+        }
+    }
+ 
+
 }

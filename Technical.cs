@@ -84,6 +84,10 @@ namespace Ceroes_
                 Visual.hSpacer(60); Console.WriteLine(" buy");
                 Visual.hSpacer(50); Visual.CenterText(bar,26); Console.WriteLine();
                 Visual.hSpacer(62); Console.WriteLine(index);
+                Console.WriteLine();
+                Visual.hSpacer(50); Visual.CenterText("Gold: " + Player.list[playerId].Resources[0],12); Visual.CenterText("Cost: " +index*gPrice,10);
+                Console.WriteLine();
+                Visual.hSpacer(50); Visual.CenterText("Crystal: " + Player.list[playerId].Resources[3],12) ; Visual.CenterText("Cost: " + index * cPrice, 10);
                 string key = Technical.KeyPress();
                 switch (key)
                 {
