@@ -9,8 +9,48 @@ namespace Ceroes_
     {
         static public string[] mapSymbols = {" ", "ȸ", "▄", "░"," ","G","W","S","C", "←", "→", "↑", "↓" };
         static public string[] mapNames = { "Air", "Hero" ,"Castle","Banner","Barrier","Gold","Wood","Stone","Crystal","Left","Right","Up","Down"};
-        static public string[] unitSymbols = { " " };
-        
+        static public string[] unitSymbols = { "α","β", "Δ" };
+        public static int uiSpacer = 65;
+        public static void DrawBoxByLine(int line, List<string> Lines,int width=5,bool sides=true)
+        {
+            width = width * 2;
+            if (line >= 0 && line <= Lines.Count+1)
+            {
+                if (line == 0&&sides) SideBoxLine(width-1, false);else if(line==0) hSpacer(width);
+                if (line >0 && line <= Lines.Count)
+                {  
+                    if (sides)  { SideBoxStick(); } 
+                    Visual.CenterText(Lines[line - 1], width); 
+                    if (sides) { SideBoxStick(); } 
+                } 
+                if ((line == Lines.Count+1 )&&sides) SideBoxLine(width-1, false); else if (line==Lines.Count + 1) hSpacer(width);
+            }
+        }
+        public static void DrawMultipleBoxes(List<List<string>>lists)
+        {
+            int amount = lists.Count,longestString=0,longestList=0;
+
+            for(int i=0;i<amount;i++)//per list
+            {
+                if (lists[i].Count > longestList-2) longestList = lists[i].Count+2;
+                for (int j = 0; j < lists[i].Count; j++)//trough list
+                {
+                    if (lists[i][j].Length>longestString)
+                    {
+                        longestString = lists[i][j].Length;
+                    }
+                }
+            }
+            for(int i=0;i<longestList;i++)//per line
+            {
+                hSpacer((uiSpacer-(longestString*amount)));
+                for(int j=0;j<amount;j++)//per list
+                {
+                    DrawBoxByLine(i,lists[j],(longestString/2)+1,true);hSpacer(5);
+                }
+                Console.WriteLine();
+            }
+        }
         public static int PlayerColour(int Id)
         {
 

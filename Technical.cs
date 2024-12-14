@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
@@ -13,6 +14,7 @@ namespace Ceroes_
 {
     public class Technical
     {
+        public static int uiSpacer = Visual.uiSpacer;
         static public void CleanBuffer() { while (Console.KeyAvailable) { Console.ReadKey(true); } }
         static public string KeyPress()
         {
@@ -67,7 +69,8 @@ namespace Ceroes_
             {
                 Console.Clear();
                 Map.mapa.vSpacer();
-                Map.mapa.vSpacer();
+
+
                 string bar = "<";
                 for(int i = 0; i <= maxAmount; i++) 
                 {
@@ -75,19 +78,30 @@ namespace Ceroes_
                     else bar += "-";
                 }
                 bar+= ">"; 
+                
+                List<string> firstbox  = new List<string>() { "╬═══╬--", "║ " + symbol + " ║", "╬═══╬--" };
+                List<string> secondbox = new List<string>() { "111111","222222","33"};
+                List<List<string>> Lists = new List<List<string>>() { firstbox,secondbox,firstbox};
+                Visual.DrawMultipleBoxes(Lists);
+                Visual.DrawMultipleBoxes(Lists);
+                
 
-                Visual.hSpacer(60); Visual.ColoredString("╬═══╬", Player.list[playerId].color,true ,0);
-                Visual.hSpacer(60); Visual.ColoredString("║ "+symbol+" ║", Player.list[playerId].color, true,0);
-                Visual.hSpacer(60); Visual.ColoredString("╬═══╬", Player.list[playerId].color,true, 0);
+                Visual.hSpacer(uiSpacer); Visual.ColoredString("╬═══╬", Player.list[playerId].color,true ,0);
+                Visual.hSpacer(uiSpacer); Visual.ColoredString("║ "+symbol+" ║", Player.list[playerId].color, true,0); 
+                Visual.hSpacer(uiSpacer); Visual.ColoredString("╬═══╬", Player.list[playerId].color,true, 0); 
+               
+                Console.WriteLine();//Visual.hSpacer(60); Visual.DrawBoxByLine(3, Side);
+                Visual.hSpacer(uiSpacer); Visual.ColoredString(current.name, 1, true, 0);
+                Visual.hSpacer(uiSpacer); Console.WriteLine(" buy");
+                Visual.hSpacer(uiSpacer-10); Visual.CenterText(bar,26); Console.WriteLine();
+                Visual.hSpacer(uiSpacer+2); Console.WriteLine(index);
                 Console.WriteLine();
-                Visual.hSpacer(60); Visual.ColoredString(current.name, 1, true, 0);
-                Visual.hSpacer(60); Console.WriteLine(" buy");
-                Visual.hSpacer(50); Visual.CenterText(bar,26); Console.WriteLine();
-                Visual.hSpacer(62); Console.WriteLine(index);
+                Visual.hSpacer(uiSpacer-10); Visual.CenterText("Gold: " + Player.list[playerId].Resources[0],12); Visual.CenterText("Cost: " +index*gPrice,10);
                 Console.WriteLine();
-                Visual.hSpacer(50); Visual.CenterText("Gold: " + Player.list[playerId].Resources[0],12); Visual.CenterText("Cost: " +index*gPrice,10);
+                Visual.hSpacer(uiSpacer-10); Visual.CenterText("Crystal: " + Player.list[playerId].Resources[3],12) ; Visual.CenterText("Cost: " + index * cPrice, 10);
                 Console.WriteLine();
-                Visual.hSpacer(50); Visual.CenterText("Crystal: " + Player.list[playerId].Resources[3],12) ; Visual.CenterText("Cost: " + index * cPrice, 10);
+                
+               
                 string key = Technical.KeyPress();
                 switch (key)
                 {
@@ -103,6 +117,7 @@ namespace Ceroes_
             }
             return 0;
         }
+      
         public class Select
         {
             int index;

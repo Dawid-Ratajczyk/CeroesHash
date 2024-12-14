@@ -24,7 +24,7 @@ namespace Ceroes_
         public static List<int> pointer = new List<int>() { -1, -1, 0,0};//x y thing saved,arrow or color
 
         public static Object.Pointer arrowPointer = new Object.Pointer("arrow" ,- 1, -1);
-        public static Object.Pointer areaPointer  = new Object.Pointer("area");
+        public static Object.Pointer areaPointer  = new Object.Pointer("area",-1,-1);
         public static Object.Pointer squarePointer = new Object.Pointer("square");
 
         public List<int> walkableThings=new List<int>(){9,5,6,7,8,10,11,12,0};
@@ -32,7 +32,7 @@ namespace Ceroes_
 
         public static List<string> arrows = new List<string>() { "←", "→", "↑", "↓" };
         private static List<string> toDraw = new List<string> { };//right box to draw
-        private static List<string> lowBoxDraw = new List<string> {};//low box to draw
+        public static List<string> lowBoxDraw = new List<string> {};//low box to draw
         public int size,x,y;//map settings
         public int sideS;
         public  List <List<int>> plane,background;// map objects and background values
@@ -356,16 +356,30 @@ namespace Ceroes_
         }
         public void SelectAreaAround(int X, int Y, int Radius)
         {
+            if (areaPointer.y > 0 && areaPointer.x > 0)
+            {
+                for (int i = areaPointer.radius; i >= 0; i--)
+                {
+                    for (int j = (i * 2) + 1; j > 0; j--)
+                    {
+
+                        if (Back(areaPointer.x + i - j + 1, areaPointer.y - areaPointer.radius + i) == 9) SetBack(areaPointer.x + i - j + 1, areaPointer.y - areaPointer.radius + i, 2);
+                        if (Back(areaPointer.x + i - j + 1, areaPointer.y + areaPointer.radius - i) == 9) SetBack(areaPointer.x + i - j + 1, areaPointer.y + areaPointer.radius - i, 2);
+                    }
+                }
+            }
             areaPointer.radius = Radius;
             areaPointer.x = X;
             areaPointer.y = Y;
-
+            
+            
             for (int i = Radius; i >= 0; i--)
             {
                 for (int j = (i*2)+1; j >0 ; j--)
                 {
-                    SetBack(X + i - j + 1, Y-Radius+i, 9);
-                    SetBack(X + i-j+1,Y+Radius-i,9);
+                    
+                    if(Back(X+i-j+1,Y-Radius+i)==2)SetBack(X + i - j + 1, Y-Radius+i, 9);
+                    if(Back(X+i-j+1,Y+Radius-i)==2)SetBack(X + i-j+1,Y+Radius-i,9);
                 }
             }                    
         }
@@ -407,7 +421,7 @@ namespace Ceroes_
         public bool SpotEmpty(int X, int Y, bool checkForThing = true, bool ignoreArrows = true)
         {
             if (X>=mapa.x || Y>=mapa.y|| X <0 || Y <0d) return false;
-            if (((IsWalkable(X,Y)&&checkForThing==true)||(IsArrow(X,Y)&&ignoreArrows)) && walkableBack.Contains(Map.mapa.background[X][Y])) return true;
+            if ( (Thing(X,Y)==0||IsArrow(X,Y)) && walkableBack.Contains(Map.mapa.background[X][Y])) return true;
             if (Map.mapa.background[X][Y] == 2&&checkForThing==false)return true; 
             return false;
         }

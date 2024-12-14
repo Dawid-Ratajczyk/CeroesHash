@@ -22,7 +22,7 @@ namespace Ceroes_
         public static bool gameLoopRunning = true;
        
         public static Technical.Select TownMenu = new Technical.Select(new List<string>() { "Buy Units", "Build Building", "Exit" });
-        public static Technical.Select BuyUnitMenu = new Technical.Select(new List<string>() { "Buy " + Unit.All[0].name, "Buy " + Unit.All[1].name, "Exit" });
+        public static Technical.Select BuyUnitMenu = new Technical.Select(new List<string>() { "Buy " + Unit.All[0].name, "Buy " + Unit.All[1].name,"Buy "+ Unit.All[2].name, "Exit" });
 
         //public static Map mapa;
         static void TechnicalSetup()
@@ -76,8 +76,7 @@ namespace Ceroes_
             //move to empty spot
             if (Map.mapa.IsInside(nextSpotX, nextSpotY) && Map.mapa.SpotEmpty(nextSpotX, nextSpotY))
             {
-                
-
+               
                 Map.mapa.Move(Object.Hero.list[heroId].x, Object.Hero.list[heroId].y, moveX, moveY);
                 Object.Hero.list[heroId].x += moveX;
                 Object.Hero.list[heroId].y += moveY;
