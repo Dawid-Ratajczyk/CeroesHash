@@ -14,6 +14,7 @@ using Newtonsoft.Json.Linq;
 using System.Threading;
 using System.Xml.Linq;
 using System.Security;
+using static System.Net.WebRequestMethods;
 
 namespace Ceroes_
 {
@@ -25,7 +26,8 @@ namespace Ceroes_
 
         public static Object.Pointer arrowPointer = new Object.Pointer("arrow" ,- 1, -1);
         public static Object.Pointer areaPointer  = new Object.Pointer("area",-1,-1);
-        public static Object.Pointer squarePointer = new Object.Pointer("square");
+        public static Object.Pointer squarePointer = new Object.Pointer("square",-1,-1);
+        public static Object.Pointer linePointer = new Object.Pointer("line",-1,-1);
 
         public List<int> walkableThings=new List<int>(){9,5,6,7,8,10,11,12,0};
         public List<int> walkableBack = new List<int>(){2,9,10};
@@ -99,36 +101,36 @@ namespace Ceroes_
             {
                 jsonString += System.Text.Json.JsonSerializer.Serialize(Object.Building.list[i].name+" "+ Object.Building.list[i].x+ " " + Object.Building.list[i].y+ " " + Object.Building.list[i].id+ " " + Object.Building.list[i].color);
                 jsonString += System.Environment.NewLine;
-            }  
-            File.WriteAllText(fileName, jsonString);
+            }
+            System.IO.File.WriteAllText(fileName, jsonString);
         }//legacy
        
         //map loading and saving
         public void SaveCurrentMapJSon(string fileName)
         {
-            File.WriteAllText(fileName, Newtonsoft.Json.JsonConvert.SerializeObject(Map.mapa));
+            System.IO.File.WriteAllText(fileName, Newtonsoft.Json.JsonConvert.SerializeObject(Map.mapa));
         }
         public void LoadMap(string mapChoice)
         {
-            using (StreamReader file = File.OpenText(mapChoice))
+            using (StreamReader file = System.IO.File.OpenText(mapChoice))
             using (JsonTextReader reader = new JsonTextReader(file))
             {
-                mapa=Newtonsoft.Json.JsonConvert.DeserializeObject<Map>(File.ReadAllText(mapChoice));
+                mapa=Newtonsoft.Json.JsonConvert.DeserializeObject<Map>(System.IO.File.ReadAllText(mapChoice));
             }
         }
         public static void SaveState(string file="state")
         {
             List<object> State = new List<object>() {Player.list,Object.Hero.list, Object.Building.list};
-            File.WriteAllText(file, Newtonsoft.Json.JsonConvert.SerializeObject(State));
+            System.IO.File.WriteAllText(file, Newtonsoft.Json.JsonConvert.SerializeObject(State));
         }
         public static void LoadState(string fileName = "state") 
         {
             List<object> Heroes = new List<object>(); List<object> Players = new List<object>(); List<object> Buildings = new List<object>();
             dynamic State; ;
-            using (StreamReader file = File.OpenText(fileName))
+            using (StreamReader file = System.IO.File.OpenText(fileName))
             using (JsonTextReader reader = new JsonTextReader(file))
             {
-                State = Newtonsoft.Json.JsonConvert.DeserializeObject<List<List<object>>>(File.ReadAllText(fileName));
+                State = Newtonsoft.Json.JsonConvert.DeserializeObject<List<List<object>>>(System.IO.File.ReadAllText(fileName));
             }
             Object.RemovalFromPlane();
             Player.list.Clear();
@@ -222,7 +224,7 @@ namespace Ceroes_
             string bar = "╬";
            // Visual.SetBackgroundColour(7);
            // Console.Write("╬");
-            for (int border = 0; border < mapa.x; border++) { bar+="═"; }
+            for (int border = 0; border < this.x; border++) { bar+="═"; }
             //Console.Write("╬");
             bar += "╬";
             Visual.ColoredString(bar, Player.list[Program.player].color, false, 1);
@@ -345,7 +347,19 @@ namespace Ceroes_
         }
         public void SelectSquare(int X, int Y,int size)
         {
-            for(int i=0; i < size;i++)
+            if (squarePointer.y > 0 && squarePointer.x > 0)
+            {
+                for (int i = areaPointer.radius; i >= 0; i--)
+                {
+                    for (int j = (i * 2) + 1; j > 0; j--)
+                    {
+
+                        SetBack(areaPointer.x + i - j + 1, areaPointer.y - areaPointer.radius + i, 2);
+                        SetBack(areaPointer.x + i - j + 1, areaPointer.y + areaPointer.radius - i, 2);
+                    }
+                }
+            }
+            for (int i=0; i < size;i++)
             {
                 for( int j=0; j < size;j++)
                 {
@@ -383,6 +397,7 @@ namespace Ceroes_
                 }
             }                    
         }
+       
         //check
         public bool IsArrow(int x,int y)
         {
@@ -434,7 +449,7 @@ namespace Ceroes_
             return false;
                 
         }
-        public int Back(int X, int Y)
+        public int  Back(int X, int Y)
         {
             if (X >= 0 && Y >= 0 && Y <= mapa.y - 1 && X <= mapa.x - 1) return mapa.background[X][Y];
             else return 0;
@@ -469,12 +484,10 @@ namespace Ceroes_
             public static List<String> names = new List<string> { "Gold", "Wood", "Stone", "Crystal" };
             public static List<int> colors = new List<int> { 5, 6, 7, 8 };
             public static int typesAmout = 4;
-
             
             public static void Place()
             {
-               //  Map.mapa.plane[2][2] = 6;
-               // Map.mapa.plane[12][12] = 6;
+
             }
             public static int Color(string symbol)
             {
@@ -491,14 +504,100 @@ namespace Ceroes_
 
         public class Battlefield : Map
         {
-            public static Battlefield fightfield = new Battlefield();
+            static List<Unit> LUnits = new List<Unit>();
+            static List<Unit> RUnits = new List<Unit>();
+           public static List<int> Heroes = new List<int>() { 0, 1};
+           public static  List<List<Unit>> Armies = new List<List<Unit>>() { LUnits, RUnits };
+
+            public static Battlefield fightfield = new Battlefield();           
             public Battlefield() :base(20, 20)
             {
+                
+            }
+           
+            public void FightFieldSetup(int X,int Y)
+            {
+                fightfield.x=X; fightfield.y=Y;
+                fightfield.plane = EmptyPlane(0);
+                fightfield.background= EmptyPlane(2);
+                fightfield.sideS = x / 2;
+                LitterWithRocks(10);
+            }
+
+
+            public void Fight(int lHeroId,int rHeroId)
+            { 
+                 FightPlaceUnits(lHeroId,rHeroId);
+                DrawField();
+            }
+
+            public void FightPlaceUnits(int lHeroId, int rHeroId)
+            {
+                Heroes = new List<int>() { lHeroId, rHeroId };
+                for (int H=0; H<Heroes.Count; H++)
+                {
+                    for (int i = 0; i < Object.Hero.list[H].Units.Count; i++)
+                    {
+                        for (int j = 0; j < Object.Hero.list[H].UnitsAmount[i]; j++)
+                        {
+                            if (Object.Hero.list[H].name != "" && Object.Hero.list[H].UnitsAmount[i] > 0)
+                            {
+                                Unit unit = Unit.Copy(i);
+                                unit.color = Object.Hero.list[H].color;
+                                unit.x = i + (H * ((H * this.x - 1) - (2 * (H * i))));
+                                unit.y = j;
+                                Armies[H].Add(unit);
+                                this.plane[unit.x][unit.y] = i+1;
+                            }
+                        }
+                    }
+                }
+               
+               
+                
 
             }
-            public void neaw()
+
+            public void DrawField()
             {
-                fightfield.PrintPlane();
+                Console.Clear();
+                vSpacer();
+                HoriznotalLine(true, false);
+                Console.WriteLine();
+                for (int i = 0; i < y; i++)
+                {
+                    hSpacer();
+                    for (int j = 0; j < x; j++)
+                    {
+                        Visual.ResetColour();
+                        if (j == 0) { hLine(); }
+
+                        Visual.SetBackgroundColour(background[j][i]);
+                        int print = plane[j][i];
+
+                        if (print > 0 && print < 4) { Visual.SetObjectColour(Object.ReturnColor(j, i,true)); }//if units
+   
+                        Console.Write(Visual.battleSymbols[plane[j][i]]);
+
+                        Visual.ResetColour();
+                        if (j == x - 1) { hLine(); }
+
+                    }   
+                    Visual.SetBackgroundColour(0);
+                    Console.WriteLine();
+                }
+                HoriznotalLine();
+            }
+            public void LitterWithRocks(int percentage)
+            {
+                Random chance = new Random();
+                for (int i = 0; i < x; i++)
+                {
+                    for (int j = 0; j < y; j++)
+                    {   if(i>2&&i<x-3)
+                        if(chance.Next(1, 100)<=percentage)fightfield.background[i][j] = 1;
+                    }
+                }
             }
         }
     

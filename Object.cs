@@ -13,31 +13,52 @@ namespace Ceroes_
         public string name;
         
 
-        public static int ReturnColor(int X, int Y)
+        public static int ReturnColor(int X, int Y,bool Battle=false)
         {
-            int thing = Map.mapa.plane[X][Y];
-            if (thing == 1)
+            if(Battle==false)
             {
-                for (int i = 0; i < Hero.list.Count; i++)
+                int thing = Map.mapa.plane[X][Y];
+                if (thing == 1)
                 {
-                    if (Hero.list[i].x == X && Hero.list[i].y == Y)
+                    for (int i = 0; i < Hero.list.Count; i++)
                     {
-                        return Hero.list[i].color;
+                        if (Hero.list[i].x == X && Hero.list[i].y == Y)
+                        {
+                            return Hero.list[i].color;
+                        }
                     }
                 }
-            }
-            if (thing == 2||thing==3)
-            {
+                if (thing == 2 || thing == 3)
+                {
 
-                for (int i = 0; i < Building.list.Count; i++)
-                {
-                    if (Building.list[i].x == X && Building.list[i].y == Y)
+                    for (int i = 0; i < Building.list.Count; i++)
                     {
-                        return Building.list[i].color;
+                        if (Building.list[i].x == X && Building.list[i].y == Y)
+                        {
+                            return Building.list[i].color;
+                        }
+                    }
+                }
+                
+            }
+            else
+            {
+                int thing = Map.Battlefield.fightfield.plane[X][Y];
+                if (thing>0&&thing<=5)
+                {
+                    for (int j = 0; j < 2; j++)
+                    {
+                        for (int i = 0; i < Map.Battlefield.Armies[j].Count; i++)
+                        {
+                            if (Map.Battlefield.Armies[j][i].x==X&&Map.Battlefield.Armies[j][i].y==Y)
+                            {
+                                return Map.Battlefield.Armies[j][i].color;
+                            }
+                        }
                     }
                 }
             }
-            return 6;
+            return 7;
         }
         public static void Initialization()
         {
@@ -71,10 +92,11 @@ namespace Ceroes_
         }
         public class Pointer:Object
         {
-            public int savedThing, colorSaved,radius;
+            public int savedThing, colorSaved,radius,line,direction;
             public string type;//area arrow line
             public List<int> savedThings = new List<int>();
-            public List<int> savedColors = new List<int>();
+            public List<int> savedColors = new List<int>()
+                ;
             public Pointer(string type,int x=0,int y=0,int savedThing=0, int colorSaved=0)
             {
                 this.x = x;

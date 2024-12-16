@@ -69,8 +69,7 @@ namespace Ceroes_
             {
                 Console.Clear();
                 Map.mapa.vSpacer();
-
-
+                Map.mapa.vSpacer();
                 string bar = "<";
                 for(int i = 0; i <= maxAmount; i++) 
                 {
@@ -78,13 +77,6 @@ namespace Ceroes_
                     else bar += "-";
                 }
                 bar+= ">"; 
-                
-                List<string> firstbox  = new List<string>() { "╬═══╬--", "║ " + symbol + " ║", "╬═══╬--" };
-                List<string> secondbox = new List<string>() { "111111","222222","33"};
-                List<List<string>> Lists = new List<List<string>>() { firstbox,secondbox,firstbox};
-                Visual.DrawMultipleBoxes(Lists);
-                Visual.DrawMultipleBoxes(Lists);
-                
 
                 Visual.hSpacer(uiSpacer); Visual.ColoredString("╬═══╬", Player.list[playerId].color,true ,0);
                 Visual.hSpacer(uiSpacer); Visual.ColoredString("║ "+symbol+" ║", Player.list[playerId].color, true,0); 
@@ -99,9 +91,7 @@ namespace Ceroes_
                 Visual.hSpacer(uiSpacer-10); Visual.CenterText("Gold: " + Player.list[playerId].Resources[0],12); Visual.CenterText("Cost: " +index*gPrice,10);
                 Console.WriteLine();
                 Visual.hSpacer(uiSpacer-10); Visual.CenterText("Crystal: " + Player.list[playerId].Resources[3],12) ; Visual.CenterText("Cost: " + index * cPrice, 10);
-                Console.WriteLine();
-                
-               
+                Console.WriteLine();               
                 string key = Technical.KeyPress();
                 switch (key)
                 {
@@ -110,14 +100,10 @@ namespace Ceroes_
                     case "X": return index;
                 }
                 //Thread.Sleep(200);
-                Console.Clear();
-
-             
-                
+                Console.Clear();    
             }
             return 0;
         }
-      
         public class Select
         {
             int index;

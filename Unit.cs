@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Ceroes_
 {
-    internal class Unit
+    internal class Unit 
     {
         public static Unit Blank =new Unit(0,0,0,"","","");
         public static Unit Soldier = new Unit(10, 5, 1, "Soldier", "α", "Melee", 15);
@@ -13,6 +13,7 @@ namespace Ceroes_
 
         public static List<Unit> All = new List<Unit>() { Soldier, Knight, Archer};
 
+        public int x, y,color;
         public string type;
         public int stack = 0;
         public int healthMax = 0;
@@ -53,6 +54,17 @@ namespace Ceroes_
                 
                 Object.Hero.list[heroId].UnitsAmount[unitId] += amount;
             }
+        }
+        public static Unit Copy(int index)
+        {
+            Unit unit = new Unit();
+            unit.health = Unit.All[index].health;
+            unit.BfSymbol = Unit.All[index].BfSymbol;
+            unit.color = Unit.All[index].color;
+            unit.damage = Unit.All[index].damage;
+            unit.healthMax = Unit.All[index].healthMax;
+            unit.name = Unit.All[index].name;
+            return unit;
         }
     }
 }

@@ -33,11 +33,9 @@ namespace Ceroes_
         static void GameSetup()
         {
             Object.Initialization();
-           // Object.Hero.list[0].Units[0]=(Unit.Soldier);
-            //Object.Hero.list[0].Units[0].stack=10;
-            //Object.Hero.list[0].Units[1]=Unit.Knight;
-            //Object.Hero.list[0].Units[1].stack = 5;
+
             Map.mapa.plane[2][2] = 8;
+            Map.Battlefield.fightfield.FightFieldSetup(50,10);
         }
         void HeroPick(int id)
         {
@@ -70,6 +68,8 @@ namespace Ceroes_
                 case "M": Map.mapa.LoadGame(); break;
                 case "B": Map.mapa.SelectAreaAround(Object.Hero.list[heroId].x, Object.Hero.list[heroId].y,3); break;
                 case "Q": gameLoopRunning=false; break;
+                case "T": Map.Battlefield.fightfield.DrawField();break;
+                case "R": Map.Battlefield.fightfield.Fight(0,1); break;
             }
             int nextSpotX = moveX + Object.Hero.list[heroId].x, nextSpotY = Object.Hero.list[heroId].y + moveY;
             int thingSpot = Map.mapa.Thing(nextSpotX, nextSpotY);
@@ -109,13 +109,19 @@ namespace Ceroes_
         }
         static void BuyUnitsMenu() 
         {
-            int amount = 0;
-            int choice = BuyUnitMenu.Choice();
-            if(choice!=BuyUnitMenu.count-1)
+            bool buying = true;
+            while(buying)
             {
-                amount = Technical.BuyAmountSelect(choice, player);
-                Unit.Purchase(choice,heroId,amount);
-            }       
+                int amount = 0;
+                int choice = BuyUnitMenu.Choice();
+                if (choice != BuyUnitMenu.count - 1)
+                {
+                    amount = Technical.BuyAmountSelect(choice, player);
+                    Unit.Purchase(choice, heroId, amount);
+                }
+                if (choice == BuyUnitMenu.count - 1) buying = false;
+            }
+
         }
         
         static void GameLoop()
