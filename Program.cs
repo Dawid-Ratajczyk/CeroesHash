@@ -36,7 +36,7 @@ namespace Ceroes_
             Object.Initialization();
 
             Map.mapa.plane[2][2] = 8;
-            Map.Battlefield.fightfield.FightFieldSetup(50,10);
+            Map.Battlefield.fightfield.FightFieldSetup(30,10);
         }
         void HeroPick(int id)
         {

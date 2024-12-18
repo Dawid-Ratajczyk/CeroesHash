@@ -510,7 +510,7 @@ namespace Ceroes_
             static List<Unit> RUnits = new List<Unit>();
            public static List<int> Heroes = new List<int>() { 0, 1};
            public static  List<List<Unit>> Armies = new List<List<Unit>>() { LUnits, RUnits };
-
+            public static int currentPlayer=0;
             public static Battlefield fightfield = new Battlefield();           
             public Battlefield() :base(20, 20)
             {
@@ -525,16 +525,12 @@ namespace Ceroes_
                 fightfield.sideS = x / 2;
                 LitterWithRocks(10);
             }
-
-
             public void Fight(int lHeroId,int rHeroId)
             { 
                 FightPlaceUnits(lHeroId,rHeroId);
                 Program.fight = true;
                 while(Program.fight)
-                {
-                   
-                    
+                { 
                     UnitAction();
                     //refresh
                     Technical.CleanBuffer();
@@ -572,58 +568,112 @@ namespace Ceroes_
 
             }
             public void UnitAction()
-            {
+            {   
                 bool unitAction = true; 
                 while (unitAction)
                 {
-                   
-                   
                     for(int  i = 0;i <2;i++)
                     {
                         for (int a = 0; a < Armies[i].Count; a++)
                         {
-                            for (int m = 0; m < Armies[i][a].move; m++)
-                            { 
-                            int uX = Armies[i][a].x;
-                            int uY = Armies[i][a].y;
-
-                            this.Select(uX, uY);
-                                
-                                this.SelectAreaAround(uX, uY, Armies[i][a].move - m);
-                            DrawField();
-                            Console.WriteLine("aX" + arrowPointer.x + "aY" + arrowPointer.y);
-                            int moveX = 0, moveY = 0;
-
-                            Console.WriteLine("x: " + uX + " y: " + uY);
-                            string key = Technical.KeyPress();
-                            switch (key)
+                            if (this.plane[Armies[i][a].x][Armies[i][a].y] != 0)
                             {
-                                //movement
-                                case "W": moveY = -1; break;
-                                case "D": moveX = 1; break;
-                                case "S": moveY = 1; break;
-                                case "A": moveX = -1; break;
-                                    //action
-                                    //case "X": Interact(); break;
-                            }
-                            int nextSpotX = moveX + uX, nextSpotY = uY + moveY;
-                            int thingSpot = Map.Battlefield.fightfield.Thing(nextSpotX, nextSpotY);
-                            //move to empty spot
-                            if (Map.Battlefield.fightfield.IsInside(nextSpotX, nextSpotY) && Map.Battlefield.fightfield.SpotEmpty(nextSpotX, nextSpotY))
-                            {
-                                Console.WriteLine("moe");
-                                Map.Battlefield.fightfield.Move(uX, uY, moveX, moveY);
-                                Armies[i][a].x += moveX;
-                                Armies[i][a].y += moveY;
-                            }
+                                lowBoxDraw.Clear();
+                                lowBoxDraw.Add(Armies[i][a].name);
+                                lowBoxDraw.Add("Health: " + Armies[i][a].health + "/" + Armies[i][a].healthMax);
 
+                                for (int m = 0; m < Armies[i][a].move; m++)
+                                {
+                                    int uX = Armies[i][a].x;
+                                    int uY = Armies[i][a].y;
+
+                                    this.Select(uX, uY);
+                                    this.SelectAreaAround(uX, uY, Armies[i][a].move - m);
+
+                                    DrawField();
+                                    DrawBox(lowBoxDraw);
+                                    Console.WriteLine("aX" + arrowPointer.x + "aY" + arrowPointer.y);
+                                    int moveX = 0, moveY = 0;
+
+                                    Console.WriteLine("x: " + uX + " y: " + uY);
+                                    string key = Technical.KeyPress();
+                                    switch (key)
+                                    {
+                                        //movement
+                                        case "W": moveY = -1; break;
+                                        case "D": moveX = 1; break;
+                                        case "S": moveY = 1; break;
+                                        case "A": moveX = -1; break;
+                                        //action
+                                        case "X": { Attack(Armies[i][a]); break; }
+
+
+
+                                    }
+                                    int nextSpotX = moveX + uX, nextSpotY = uY + moveY;
+                                    int thingSpot = Map.Battlefield.fightfield.Thing(nextSpotX, nextSpotY);
+                                    //move to empty spot
+                                    if (Map.Battlefield.fightfield.IsInside(nextSpotX, nextSpotY) && Map.Battlefield.fightfield.SpotEmpty(nextSpotX, nextSpotY))
+                                    {
+                                        Console.WriteLine("moe");
+                                        Map.Battlefield.fightfield.Move(uX, uY, moveX, moveY);
+                                        Armies[i][a].x += moveX;
+                                        Armies[i][a].y += moveY;
+                                    }
+                                }
                             }
+                            else Armies[i].RemoveAt(a);
+                            lowBoxDraw = new List<string>{};
                         }
                     }
        
                 }
            }
+            public void Attack(Unit attacker)
+            {
+                int X = attacker.x;
+                int Y = attacker.y;
+                int dmg = attacker.damage;
+                List<int>direction = new List<int> {0,0};
+                string key = Technical.KeyPress();
+                switch (key)
+                {
+                    //movement
+                    case "W": direction[1]=-1; break;
+                    case "D": direction[0] = 1; break;
+                    case "S": direction[1] = 1; break;
+                    case "A": direction[0] = -1; break;
+                }
+         
+                switch (attacker.name)
+                {
+                    case ("Soldier"):
+                        this.SetBack(X + direction[0], Y + direction[1], 6);
+                        GetUnit(X + direction[0], Y + direction[1]).health-=dmg;
+                        DrawField();
+                        Thread.Sleep(400);
+                        if(GetUnit(X + direction[0], Y + direction[1]).health <= 0) { this.plane[X + direction[0]][Y + direction[1]]=0; }
+                        this.SetBack(X + direction[0], Y + direction[1], 2);
+                        break;
+                }
 
+
+
+            }
+            public Unit GetUnit(int X,int Y)
+            {
+                for (int i = 0; i < 2; i++)
+                {
+                    for (int a = 0; a < Armies[i].Count; a++)
+                    {
+                        if (Armies[i][a].x == X && Armies[i][a].y == Y)
+                        {
+                            return Armies[i][a];
+                        }
+                    }
+                }
+                        return Unit.Blank;
+            }
             public void DrawField()
             {
                 Console.Clear();
