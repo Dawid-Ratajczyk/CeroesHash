@@ -6,10 +6,10 @@ namespace Ceroes_
 {
     internal class Unit 
     {
-        public static Unit Blank =new Unit(0,0,0,"","","");
-        public static Unit Soldier = new Unit(10, 5, 1, "Soldier", "α", "Melee", 15);
-        public static Unit Knight = new Unit(20, 10, 2, "Knight", "β", "Melee", 50,1);
-        public static Unit Archer = new Unit(10, 15, 3, "Archer", "Δ", "Ranged", 30, 2);
+        public static Unit Blank =new Unit(0,0,0,0,"","","");
+        public static Unit Soldier = new Unit(10, 5, 1, 6,"Soldier", "α", "Melee", 15);
+        public static Unit Knight = new Unit(20, 10, 2,4,"Knight", "β", "Melee", 50,1);
+        public static Unit Archer = new Unit(10, 15, 3, 5,"Archer", "Δ", "Ranged", 30, 2);
 
         public static List<Unit> All = new List<Unit>() { Soldier, Knight, Archer};
 
@@ -22,8 +22,9 @@ namespace Ceroes_
         public string BfSymbol;// battelfield symbol
         public int gprice = 0;//gold price
         public int cprice = 0;//crystal price
+        public int move = 3;
 
-        public Unit(int Health, int Damage, int Tier, string Name,string bfSymbol,string Type, int gPrice=0,int cPrice=0)
+        public Unit(int Health, int Damage, int Tier,int Move, string Name,string bfSymbol,string Type, int gPrice=0,int cPrice=0)
         {
             this.healthMax = Health;
             this.health = Health;
@@ -34,6 +35,7 @@ namespace Ceroes_
             this.gprice = gPrice;
             this.cprice = cPrice;
             this.type = Type;
+            this.move= Move;
         }
         public Unit() { }
         public static void Purchase(int unitId, int heroId, int amount=0)

@@ -15,6 +15,7 @@ using System.Threading;
 using System.Xml.Linq;
 using System.Security;
 using static System.Net.WebRequestMethods;
+using static Ceroes_.Object;
 
 namespace Ceroes_
 {
@@ -24,10 +25,10 @@ namespace Ceroes_
         public static Map mapa = new Map(30,16); //map object
         public static List<int> pointer = new List<int>() { -1, -1, 0,0};//x y thing saved,arrow or color
 
-        public static Object.Pointer arrowPointer = new Object.Pointer("arrow" ,- 1, -1);
-        public static Object.Pointer areaPointer  = new Object.Pointer("area",-1,-1);
-        public static Object.Pointer squarePointer = new Object.Pointer("square",-1,-1);
-        public static Object.Pointer linePointer = new Object.Pointer("line",-1,-1);
+        public static Object.Pointer arrowPointer  = new Object.Pointer("arrow" ,-1 ,-1);
+        public static Object.Pointer areaPointer   = new Object.Pointer("area"  ,-1 ,-1);
+        public static Object.Pointer squarePointer = new Object.Pointer("square",-1 ,-1);
+        public static Object.Pointer linePointer   = new Object.Pointer("line"  ,-1 ,-1);
 
         public List<int> walkableThings=new List<int>(){9,5,6,7,8,10,11,12,0};
         public List<int> walkableBack = new List<int>(){2,9,10};
@@ -37,6 +38,7 @@ namespace Ceroes_
         public static List<string> lowBoxDraw = new List<string> {};//low box to draw
         public int size,x,y;//map settings
         public int sideS;
+
         public  List <List<int>> plane,background;// map objects and background values
       
         private List<List<int>>EmptyPlane(int fillWith=0)
@@ -263,7 +265,7 @@ namespace Ceroes_
         }
         public List<string> RightMapBoxValues()
         {
-            int unitsStacks = Object.Hero.list[Program.heroId].Units.Count;
+            int unitsStacks = 5;
             List<string> toReturn = new List<string> { };
             int spacer = 3;
             toReturn.Add("Player " + Player.list[Program.player].name);
@@ -316,31 +318,31 @@ namespace Ceroes_
             HoriznotalLine();
             lowBoxDraw = new List<string> {};//reset lower box values
     }
-        public void Select(int x,int y)
+        public void Select(int X,int Y)
         {
-            List<int> spots =FreeSpotsAround(x,y);
+            List<int> spots =FreeSpotsAround(X,Y);
 
            if ((arrowPointer.x < 0 || arrowPointer.y<0)==false)//if pointer exists erase earlier
            {
                 if (arrowPointer.savedThing == 0 && IsArrow(arrowPointer.x, arrowPointer.y))//if object
                 {
-                    mapa.plane[arrowPointer.x][arrowPointer.y] = 0;
+                    this.plane[arrowPointer.x][arrowPointer.y] = 0;
                 }
                 else if(arrowPointer.savedThing != 0) // if background
                 {
-                    mapa.background[arrowPointer.x][arrowPointer.y] = arrowPointer.savedThing;
+                    this.background[arrowPointer.x][arrowPointer.y] = arrowPointer.savedThing;
                 }
             }
             if (spots[2] != 0)//if place is not in object
             {
-                arrowPointer.savedThing = mapa.plane[spots[0]][spots[1]];
-                mapa.plane[spots[0]][spots[1]] = spots[2];
+                arrowPointer.savedThing = this.plane[spots[0]][spots[1]];
+                this.plane[spots[0]][spots[1]] = spots[2];
                 arrowPointer.colorSaved = 0;
             }
             else//if place is object
             {
-                arrowPointer.colorSaved = mapa.background[spots[0]][spots[1]];
-                mapa.background[spots[0]][spots[1]] = 9; 
+                arrowPointer.colorSaved = this.background[spots[0]][spots[1]];
+                this.background[spots[0]][spots[1]] = 9; 
             }
             arrowPointer.x = spots[0];
             arrowPointer.y = spots[1];
@@ -370,7 +372,7 @@ namespace Ceroes_
         }
         public void SelectAreaAround(int X, int Y, int Radius)
         {
-            if (areaPointer.y > 0 && areaPointer.x > 0)
+            if (areaPointer.y >= 0 && areaPointer.x >= 0)
             {
                 for (int i = areaPointer.radius; i >= 0; i--)
                 {
@@ -401,7 +403,7 @@ namespace Ceroes_
         //check
         public bool IsArrow(int x,int y)
         {
-            if (mapa.plane[x][y] >= 9 && mapa.plane[x][y] <= 12) return true;
+            if (this.plane[x][y] >= 9 && this.plane[x][y] <= 12) return true;
             else return false;
         }
         public List<int> FreeSpotsAround(int x, int y)
@@ -435,9 +437,9 @@ namespace Ceroes_
         }
         public bool SpotEmpty(int X, int Y, bool checkForThing = true, bool ignoreArrows = true)
         {
-            if (X>=mapa.x || Y>=mapa.y|| X <0 || Y <0d) return false;
-            if ( (Thing(X,Y)==0||IsArrow(X,Y)) && walkableBack.Contains(Map.mapa.background[X][Y])) return true;
-            if (Map.mapa.background[X][Y] == 2&&checkForThing==false)return true; 
+            if (X>=this.x || Y>=this.y|| X <0 || Y <0d) return false;
+            if ( (Thing(X,Y)==0||IsArrow(X,Y)) && walkableBack.Contains(this.background[X][Y])) return true;
+            if (this.background[X][Y] == 2&&checkForThing==false)return true; 
             return false;
         }
         public bool IsWalkable(int X, int Y, bool checkThing=true,bool checkBack=true)
@@ -451,12 +453,12 @@ namespace Ceroes_
         }
         public int  Back(int X, int Y)
         {
-            if (X >= 0 && Y >= 0 && Y <= mapa.y - 1 && X <= mapa.x - 1) return mapa.background[X][Y];
+            if (X >= 0 && Y >= 0 && Y <= this.y - 1 && X <= this.x - 1) return this.background[X][Y];
             else return 0;
         }
         public int  Thing(int X,int Y)
         {
-            if (X >= 0 && Y >= 0&&Y<=mapa.y-1 && X <= mapa.x-1) return mapa.plane[X][Y];
+            if (X >= 0 && Y >= 0&&Y<=this.y-1 && X <= this.x-1) return this.plane[X][Y];
             else return 0;
         }
         public static bool IsResource(int thingId)
@@ -472,12 +474,12 @@ namespace Ceroes_
         }
         public void Move(int fromX,int fromY,int dirX=0,int dirY = 0)
         {
-            plane[fromX + dirX][fromY + dirY] = plane[fromX][fromY];
-            plane[fromX][fromY] = 0;
+            this.plane[fromX + dirX][fromY + dirY] = this.plane[fromX][fromY];
+            this.plane[fromX][fromY] = 0;
         }
         public void SetBack(int X,int Y,int color)
         {
-            if (X >= 0&&Y>= 0) Map.mapa.background[X][Y] = color;
+            if (X >= 0&&Y>= 0) this.background[X][Y] = color;
         }
         public struct Resources
         {
@@ -527,8 +529,20 @@ namespace Ceroes_
 
             public void Fight(int lHeroId,int rHeroId)
             { 
-                 FightPlaceUnits(lHeroId,rHeroId);
-                DrawField();
+                FightPlaceUnits(lHeroId,rHeroId);
+                Program.fight = true;
+                while(Program.fight)
+                {
+                   
+                    
+                    UnitAction();
+                    //refresh
+                    Technical.CleanBuffer();
+                    Thread.Sleep(200);
+                    Console.Clear();
+
+                }
+                
             }
 
             public void FightPlaceUnits(int lHeroId, int rHeroId)
@@ -557,6 +571,58 @@ namespace Ceroes_
                 
 
             }
+            public void UnitAction()
+            {
+                bool unitAction = true; 
+                while (unitAction)
+                {
+                   
+                   
+                    for(int  i = 0;i <2;i++)
+                    {
+                        for (int a = 0; a < Armies[i].Count; a++)
+                        {
+                            for (int m = 0; m < Armies[i][a].move; m++)
+                            { 
+                            int uX = Armies[i][a].x;
+                            int uY = Armies[i][a].y;
+
+                            this.Select(uX, uY);
+                                
+                                this.SelectAreaAround(uX, uY, Armies[i][a].move - m);
+                            DrawField();
+                            Console.WriteLine("aX" + arrowPointer.x + "aY" + arrowPointer.y);
+                            int moveX = 0, moveY = 0;
+
+                            Console.WriteLine("x: " + uX + " y: " + uY);
+                            string key = Technical.KeyPress();
+                            switch (key)
+                            {
+                                //movement
+                                case "W": moveY = -1; break;
+                                case "D": moveX = 1; break;
+                                case "S": moveY = 1; break;
+                                case "A": moveX = -1; break;
+                                    //action
+                                    //case "X": Interact(); break;
+                            }
+                            int nextSpotX = moveX + uX, nextSpotY = uY + moveY;
+                            int thingSpot = Map.Battlefield.fightfield.Thing(nextSpotX, nextSpotY);
+                            //move to empty spot
+                            if (Map.Battlefield.fightfield.IsInside(nextSpotX, nextSpotY) && Map.Battlefield.fightfield.SpotEmpty(nextSpotX, nextSpotY))
+                            {
+                                Console.WriteLine("moe");
+                                Map.Battlefield.fightfield.Move(uX, uY, moveX, moveY);
+                                Armies[i][a].x += moveX;
+                                Armies[i][a].y += moveY;
+                            }
+
+                            }
+                        }
+                    }
+       
+                }
+           }
 
             public void DrawField()
             {

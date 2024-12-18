@@ -20,6 +20,7 @@ namespace Ceroes_
 
         public static int stateId = 0; //0-map 1-town 2-combat
         public static bool gameLoopRunning = true;
+        public static bool fight = false;
        
         public static Technical.Select TownMenu = new Technical.Select(new List<string>() { "Buy Units", "Build Building", "Exit" });
         public static Technical.Select BuyUnitMenu = new Technical.Select(new List<string>() { "Buy " + Unit.All[0].name, "Buy " + Unit.All[1].name,"Buy "+ Unit.All[2].name, "Exit" });
@@ -98,14 +99,14 @@ namespace Ceroes_
         }
         static void Interact()
         {
-            if(Map.mapa.IsInteractingWithBuilding(Object.Hero.list[Program.heroId].x, Object.Hero.list[Program.heroId].y))
-            {
+           // if(Map.mapa.IsInteractingWithBuilding(Object.Hero.list[Program.heroId].x, Object.Hero.list[Program.heroId].y))
+           // {
                 switch(TownMenu.Choice())
                 {
                     case 0: BuyUnitsMenu(); break;
                 }
 
-            }
+         //   }
         }
         static void BuyUnitsMenu() 
         {
