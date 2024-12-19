@@ -116,7 +116,7 @@ namespace Ceroes_
             public List<Unit> Units = new List<Unit>() {Unit.Blank, Unit.Blank, Unit.Blank, Unit.Blank, Unit.Blank};
             public List<int> UnitsAmount =new List<int>() {0,0,0,0,0};
 
-            public static List<Hero> list = new List<Hero> { new Hero("Andrew", 0,0, 0, 0),new Hero("Aron", 1, 1, 0,1), new Hero("Bepis", 6, 6, 1, 2), new Hero("Cys", 5, 5, 2, 3) };
+            public static List<Hero> list = new List<Hero> { new Hero("Andrew", 0,0, 0, 0), new Hero("Bepis", 10, 6, 1, 1), new Hero("Cys", 5, 5, 2, 2) };
             public bool controlled = true;
 
             public Hero(string Name, int X, int Y, int player,int Id)

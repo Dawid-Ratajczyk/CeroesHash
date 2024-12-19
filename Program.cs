@@ -38,7 +38,7 @@ namespace Ceroes_
             Map.mapa.plane[2][2] = 8;
             Map.Battlefield.fightfield.FightFieldSetup(30,10);
         }
-       static  void HeroPick(int id)
+        static  void HeroPick(int id)
         {
             heroId=id;
             player = Object.Hero.list[id].playerId;
@@ -133,8 +133,8 @@ namespace Ceroes_
 
                 //drawing image
                 Map.mapa.Select(Object.Hero.list[heroId].x, Object.Hero.list[heroId].y);
-                Map.mapa.PrintPlane();
-                Map.mapa.DrawBox(new List<string> {"a","b","c"});
+                Map.mapa.PrintSelectedPlane(Object.Hero.list[heroId].x, Object.Hero.list[heroId].y,9);
+                //Map.mapa.DrawBox(new List<string> {"a","b","c"});
               
                 //game logic
                 PlayerAction();

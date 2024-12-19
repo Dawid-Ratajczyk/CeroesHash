@@ -223,13 +223,13 @@ namespace Ceroes_
             Visual.ResetColour();
         }
         //hud elements
-        private void HoriznotalLine(bool corners = true, bool newLine = true,int color=1)
+        private void HoriznotalLine(bool corners = true, bool newLine = true,int color=1, int width=10)
         {
             hSpacer();
             string bar = "╬";
            // Visual.SetBackgroundColour(7);
            // Console.Write("╬");
-            for (int border = 0; border < this.x; border++) { bar+="═"; }
+            for (int border = 0; border < width; border++) { bar+="═"; }
             //Console.Write("╬");
             bar += "╬";
             Visual.ColoredString(bar, Player.list[Program.player].color, false, 1);
@@ -241,7 +241,7 @@ namespace Ceroes_
             if (lowBoxDraw.Count == 0) { lowBoxDraw.Add(" "); }
             Lines = lowBoxDraw;
             BreakLine();
-            HoriznotalLine();
+            HoriznotalLine(true,true,1,this.x);
             hSpacer();
             
             for(int i=0; i<Lines.Count; i++)
@@ -252,7 +252,7 @@ namespace Ceroes_
                 BreakLine();
                 if(i!=Lines.Count-1)hSpacer();
             }    
-            HoriznotalLine();
+            HoriznotalLine(true, true, 1, this.x);
         }
         public void DrawRightMapBox(int line)
         {
@@ -293,7 +293,7 @@ namespace Ceroes_
         {
             toDraw = RightMapBoxValues();
             vSpacer();
-            HoriznotalLine(true,false);
+            HoriznotalLine(true,false,1,this.x);
             DrawRightMapBox(0);
             for (int i = 0; i < y; i++)
             {
@@ -318,9 +318,65 @@ namespace Ceroes_
                 Visual.SetBackgroundColour(0);
                 Console.WriteLine();
             }
-            HoriznotalLine();
+            HoriznotalLine(true, true, 1, this.x);
             lowBoxDraw = new List<string> {};//reset lower box values
     }
+        public void PrintSelectedPlane(int X,int Y,int Size)
+        {
+            List<int> corner = Corner(X, Y, Size);
+            vSpacer();
+            HoriznotalLine(true, false,1,(Size*2)+1);
+            Console.WriteLine();
+
+            for (int i = Y-Size; i < Y - Size + (Size * 2) + 1; i++)
+            {
+                hSpacer();
+                hLine();
+             
+                if (i<0|i>=this.y){hSpacer((Size * 2)+1); hLine(); }
+                else
+                {
+                    hSpacer(corner[2]);
+                    for (int j = corner[0]; j < corner[0] + (Size * 2) + 1 - corner[2]; j++)
+                    {
+                        
+                        Visual.ResetColour();
+                   
+                        if(j<this.x)
+                        {
+                            Visual.SetBackgroundColour(background[j][i]);
+                            int print = plane[j][i];
+
+                            if (print > 0 && print < 5) { Visual.SetObjectColour(Object.ReturnColor(j, i)); }//if building or player
+                            else if (print > 4 && print < 9) { Visual.SetObjectColour(0); Visual.SetBackgroundColour(Resources.Color(Visual.mapSymbols[print])); }//if resource
+                            Console.Write(Visual.mapSymbols[plane[j][i]]);
+
+                            Visual.ResetColour();
+                        }
+                        else Console.Write(" ");
+
+                        //if (j == x - 1) { hLine(); }
+
+                    }
+                    hLine();
+                }
+               
+                Visual.SetBackgroundColour(0);
+                Console.WriteLine();
+            }
+            HoriznotalLine(true, false,1,(Size * 2)+1);
+            Console.WriteLine();
+        }
+     
+        public List<int> Corner(int X,int Y,int Size)
+        {
+            int lSpacer = 0, uSpacer = 0;
+            if (X - Size < 0) { lSpacer = (X - Size) * -1; X = 0; }
+            else X -= Size;
+            if (Y - Size < 0) { uSpacer = (Y - Size) * -1; Y = 0; }
+            else Y -= Size;
+            return new List<int>(){X,Y,lSpacer,uSpacer};
+        }
         public void Select(int X,int Y)
         {
             List<int> spots =FreeSpotsAround(X,Y);
@@ -408,11 +464,11 @@ namespace Ceroes_
         }
        
         //check
-        public bool IsArrow(int x,int y)
+        public bool IsArrow(int X,int Y)
         {
-            if (this.plane[x][y] >= 9 && this.plane[x][y] <= 12) return true;
-            else return false;
-        }
+            if(IsInside(X,Y)) { if (this.plane[X][Y] >= 9 && this.plane[X][Y] <= 12) return true;}
+            return false;
+         }
         public List<int> FreeSpotsAround(int x, int y)
         {
             if(x< 0 || y < 0) return new List<int>() {-1,-1};
@@ -513,12 +569,11 @@ namespace Ceroes_
 
         public class Battlefield : Map
         {
-            static List<Unit> LUnits = new List<Unit>();
-            static List<Unit> RUnits = new List<Unit>();
-           public static List<int> Heroes = new List<int>() { 0, 1};
-           public static  List<List<Unit>> Armies = new List<List<Unit>>() { LUnits, RUnits };
+            static List<Unit> LUnits = new List<Unit>(), RUnits = new List<Unit>();//list of heroes units
+            public static List<int> Heroes = new List<int>() { 0, 1};//list of heroes fighting 
+            public static  List<List<Unit>> Armies = new List<List<Unit>>() { LUnits, RUnits };//List of all units fighting
             public static int currentPlayer=0;
-           static List<int> playerId;
+           static List<int> playerIds;
             static List<string> UnitsInfo;
             static int damageDelay = 400;
             public static Battlefield fightfield = new Battlefield();           
@@ -537,7 +592,7 @@ namespace Ceroes_
             }
             public void Fight(int lHeroId,int rHeroId)
             {
-                playerId = new List<int>() { Object.Hero.list[lHeroId].playerId, Object.Hero.list[rHeroId].playerId };
+                playerIds = new List<int>() { Object.Hero.list[lHeroId].playerId, Object.Hero.list[rHeroId].playerId };
                 FightPlaceUnits(lHeroId,rHeroId);
                 Program.fight = true;
                 while(Program.fight)
@@ -571,10 +626,6 @@ namespace Ceroes_
                         }
                     }
                 }
-               
-               
-                
-
             }
           
             public void UnitAction()
@@ -584,9 +635,9 @@ namespace Ceroes_
                 {
                     for(int  i = 0;i <2;i++)
                     {
-                        Program.player = playerId[i];
-                        currentPlayer = playerId[i];
-                        for (int a = 0; a < Armies[i].Count; a++)
+                        Program.player = playerIds[i];
+                        currentPlayer = playerIds[i];
+                        for (int a = Armies[i].Count-1; a >=0 ; a--)
                         {
                             UnitsInfo = FightingUnits()[i];
                             if (this.plane[Armies[i][a].x][Armies[i][a].y] != 0)
@@ -602,13 +653,10 @@ namespace Ceroes_
 
                                     this.Select(uX, uY);
                                     this.SelectAreaAround(uX, uY, Armies[i][a].move - m);
-
-                                    DrawField();
-                                    DrawBox(lowBoxDraw);
-                                    Console.WriteLine("aX" + arrowPointer.x + "aY" + arrowPointer.y);
+                                    DrawField();    
+                                    
                                     int moveX = 0, moveY = 0;
 
-                                    Console.WriteLine("x: " + uX + " y: " + uY);
                                     string key = Technical.KeyPress();
                                     switch (key)
                                     {
@@ -625,11 +673,11 @@ namespace Ceroes_
                                     //move to empty spot
                                     if (Map.Battlefield.fightfield.IsInside(nextSpotX, nextSpotY) && Map.Battlefield.fightfield.SpotEmpty(nextSpotX, nextSpotY))
                                     {
-                                      
                                         Map.Battlefield.fightfield.Move(uX, uY, moveX, moveY);
                                         Armies[i][a].x += moveX;
                                         Armies[i][a].y += moveY;
                                     }
+                                    Technical.CleanBuffer();
                                 }
                             }
                             else Armies[i].RemoveAt(a);
@@ -655,7 +703,11 @@ namespace Ceroes_
                     case "S": direction[1] = 1; break;
                     case "A": direction[0] = -1; break;
                 }
-         
+
+                bool action = true;
+                if (direction[0] == 0) if (direction[1] == 0) action = false;
+                if(action)
+
                 switch (attacker.name)
                 {
                     case ("Soldier"):
@@ -744,7 +796,7 @@ namespace Ceroes_
                
                 for (int i = 0; i < 2; i++)
                 {
-                    Lines[i].Add(Player.list[playerId[i]].name + " Army");
+                    Lines[i].Add(Player.list[playerIds[i]].name + " Army");
                     Lines[i].Add("");
                     for (int a = 0; a < Armies[i].Count; a++)
                     {
@@ -782,8 +834,8 @@ namespace Ceroes_
             {
                 Console.Clear();
                 vSpacer();
-                HoriznotalLine(true, false);
-                hSpacer(5);Visual.DrawBoxByLine(0, UnitsInfo, 7, true, 1, Player.list[playerId[currentPlayer]].color);
+                HoriznotalLine(true, false,1,this.x);
+                hSpacer(5);Visual.DrawBoxByLine(0, UnitsInfo, 7, true, 1, Player.list[playerIds[currentPlayer]].color);
                 Console.WriteLine();
                 for (int i = 0; i < y; i++)
                 {
@@ -805,12 +857,13 @@ namespace Ceroes_
 
                     }
 
-                    hSpacer(5); Visual.DrawBoxByLine(i+1, UnitsInfo,7, true,1 , Player.list[playerId[currentPlayer]].color);
+                    hSpacer(5); Visual.DrawBoxByLine(i+1, UnitsInfo,7, true,1 , Player.list[playerIds[currentPlayer]].color);
                     
                     Visual.SetBackgroundColour(0);
                     Console.WriteLine();
                 }
-                HoriznotalLine();
+                HoriznotalLine(true,true,1,this.x);
+                DrawBox(lowBoxDraw);
             }
             public void LitterWithRocks(int percentage)
             {

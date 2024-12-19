@@ -9,7 +9,7 @@ namespace Ceroes_
         public static Unit Blank =new Unit(0,0,0,0,"","","");
         public static Unit Soldier = new Unit(10, 5, 1, 6,"Soldier", "α", "Melee", 15);
         public static Unit Knight = new Unit(20, 10, 2,4,"Knight", "β", "Melee", 50,1);
-        public static Unit Archer = new Unit(10, 15, 3, 5,"Archer", "Δ", "Ranged", 30, 2);
+        public static Unit Archer = new Unit(10, 15, 3, 3,"Archer", "Δ", "Ranged", 30, 2);
 
         public static List<Unit> All = new List<Unit>() { Soldier, Knight, Archer};
 
