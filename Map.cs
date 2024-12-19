@@ -581,8 +581,13 @@ namespace Ceroes_
             static List<int> playerIds;
             static List<string> UnitsInfo;
             static int damageDelay = 400;
+            static public int upointer=0;
             static List<string> currentUnitStats=new List<string>();
-            public static Battlefield fightfield = new Battlefield();           
+            public static Battlefield fightfield = new Battlefield();
+            static int yLine = 0, uwidth = 7;
+            static List<string> LeftUnits;
+            static List<string> RightUnits;
+
             public Battlefield() :base(20, 20)
             {
                 
@@ -599,6 +604,7 @@ namespace Ceroes_
             public void Fight(int lHeroId,int rHeroId)
             {
                 playerIds = new List<int>() { Object.Hero.list[lHeroId].playerId, Object.Hero.list[rHeroId].playerId };
+                Console.WriteLine(lHeroId+" "+rHeroId);
                 FightPlaceUnits(lHeroId,rHeroId);
                 Program.fight = true;
                 while(Program.fight)
@@ -614,16 +620,17 @@ namespace Ceroes_
             public void FightPlaceUnits(int lHeroId, int rHeroId)
             {
                 Heroes = new List<int>() { lHeroId, rHeroId };
+
                 for (int H=0; H<Heroes.Count; H++)
                 {
-                    for (int i = 0; i < Object.Hero.list[H].Units.Count; i++)
+                    for (int i = 0; i < Object.Hero.list[Heroes[H]].Units.Count; i++)
                     {
-                        for (int j = 0; j < Object.Hero.list[H].UnitsAmount[i]; j++)
+                        for (int j = 0; j < Object.Hero.list[Heroes[H]].UnitsAmount[i]; j++)
                         {
-                            if (Object.Hero.list[H].name != "" && Object.Hero.list[H].UnitsAmount[i] > 0)
+                            if (Object.Hero.list[Heroes[H]].name != "" && Object.Hero.list[Heroes[H]].UnitsAmount[i] > 0)
                             {
                                 Unit unit = Unit.Copy(i);
-                                unit.color = Object.Hero.list[H].color;
+                                unit.color = Object.Hero.list[Heroes[H]].color;
                                 unit.x = i + (H * ((H * this.x - 1) - (2 * (H * i))));
                                 unit.y = j;
                                 Armies[H].Add(unit);
@@ -645,6 +652,7 @@ namespace Ceroes_
                         currentPlayer = playerIds[i];
                         for (int a = Armies[i].Count-1; a >=0 ; a--)
                         {
+                            upointer = a;
                             UnitsInfo = FightingUnits()[i];
                             if (this.plane[Armies[i][a].x][Armies[i][a].y] != 0)
                             {
@@ -843,21 +851,27 @@ namespace Ceroes_
                 strings.Add("Health: " + info.health + "/" + info.healthMax);
                 return strings;
             }
+            public void PrintArmyBoxes()
+            {
+                yLine++;
+                hSpacer(4); if (upointer + 3 == yLine && playerIds[0] == currentPlayer) Console.Write(">"); else hSpacer(1);
+                Visual.DrawBoxByLine(yLine, LeftUnits, 7, true, 1, Player.list[playerIds[0]].color);
+                if (upointer + 3 == yLine && playerIds[1] == currentPlayer) Console.Write(">"); else hSpacer(1);
+                Visual.DrawBoxByLine(yLine, RightUnits, 7, true, 1, Player.list[playerIds[1]].color);
+
+                Visual.ResetColour();
+                Console.WriteLine();
+            }
             public void DrawField()
             {
-                int yLine = 0,uwidth=7;
-                List<string> LeftUnits = FightingUnits()[0];
-                List<string> RightUnits = FightingUnits()[1];
-
+                yLine = -1;
+                LeftUnits = FightingUnits()[0];
+                RightUnits = FightingUnits()[1];
                 Console.Clear();
                 vSpacer();
                 HoriznotalLine(true, false,1,this.x);
-                //hSpacer(5);Visual.DrawBoxByLine(yLine, UnitsInfo, 7, true, 1, Player.list[playerIds[currentPlayer]].color);
-                hSpacer(5); 
-                Visual.DrawBoxByLine(yLine, LeftUnits, uwidth, true, 1, Player.list[playerIds[0]].color);
-                hSpacer(1);
-                Visual.DrawBoxByLine(yLine, RightUnits, uwidth, true, 1, Player.list[playerIds[1]].color);
-                Console.WriteLine();
+
+                PrintArmyBoxes();
 
                 for (int i = 0; i < y; i++)
                 {
@@ -869,50 +883,27 @@ namespace Ceroes_
 
                         Visual.SetBackgroundColour(background[j][i]);
                         int print = plane[j][i];
-
                         if (print > 0 && print < 4) { Visual.SetObjectColour(Object.ReturnColor(j, i,true)); }//if units
-   
                         Console.Write(Visual.battleSymbols[plane[j][i]]);
-
                         Visual.ResetColour();
                         if (j == x - 1) { hLine(); }
 
                     }
-
-                    hSpacer(5);
-                    yLine++;
-                    Visual.DrawBoxByLine(yLine, LeftUnits, 7, true, 1, Player.list[playerIds[0]].color);
-                    hSpacer(1);
-                   // if (yLine >= LeftUnits.Count+2) { hSpacer(14+2); }
-                    Visual.DrawBoxByLine(yLine, RightUnits, 7, true, 1, Player.list[playerIds[1]].color);
-                  
-                    Visual.SetBackgroundColour(0);
-                    Console.WriteLine();
+                    PrintArmyBoxes();
                 }
                 HoriznotalLine(true,false,1,this.x);
-                hSpacer(5);
-
-                yLine++;
-                Visual.DrawBoxByLine(yLine, LeftUnits, uwidth, true, 1, Player.list[playerIds[0]].color);
-                hSpacer(1);
-                //if (yLine >= LeftUnits.Count + 2) { hSpacer(14 + 2); }
-                Visual.DrawBoxByLine(yLine, RightUnits, uwidth, true, 1, Player.list[playerIds[1]].color);
-
+                PrintArmyBoxes();
                 int postPrint = LeftUnits.Count+2 - this.y;
                 if(RightUnits.Count>LeftUnits.Count)postPrint=RightUnits.Count+2-this.y;
-                Console.WriteLine();
 
-                for (int i= 0; i < 5; i++)
+                if (postPrint <= 0) postPrint = lowBoxDraw.Count + 3;
+
+                for (int i= 0; i < postPrint; i++)
                 {
                     hSpacer();
-                    if(i!=0)Visual.DrawBoxByLine(i-1, lowBoxDraw, this.x / 2, true, 1, Player.list[playerIds[currentPlayer]].color);
+                    if(i!=0)Visual.DrawBoxByLine(i-1, lowBoxDraw, this.x / 2, true, 1, Player.list[currentPlayer].color);
                     else hSpacer(this.x+2);
-                    hSpacer(5);
-                    yLine++;
-                    Visual.DrawBoxByLine(yLine, LeftUnits, uwidth, true, 1, Player.list[playerIds[0]].color);
-                    hSpacer(1);
-                    Visual.DrawBoxByLine(yLine, RightUnits, uwidth, true, 1, Player.list[playerIds[1]].color);
-                    Console.WriteLine();
+                    PrintArmyBoxes();
                 }
             }
             public void LitterWithRocks(int percentage)

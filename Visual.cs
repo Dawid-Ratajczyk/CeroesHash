@@ -32,7 +32,7 @@ namespace Ceroes_
             else { Visual.ResetColour(); hSpacer(width);if (sides) hSpacer(2); }
             Visual.ResetColour();
         }
-        public static void DrawMultipleBoxes(List<List<string>>lists)
+        public static void DrawMultipleBoxes(List<List<string>> lists, int bgColor = 0,int txColor=1)
         {
             int amount = lists.Count,longestString=0,longestList=0;
 
@@ -52,7 +52,7 @@ namespace Ceroes_
                 hSpacer((uiSpacer-(longestString*amount)));
                 for(int j=0;j<amount;j++)//per list
                 {
-                    DrawBoxByLine(i,lists[j],(longestString/2)+1,true);hSpacer(5);
+                    DrawBoxByLine(i,lists[j],(longestString/2)+1,true,bgColor,txColor);hSpacer(5);
                 }
                 Console.WriteLine();
             }

@@ -71,7 +71,7 @@ namespace Ceroes_
                 case "B": Map.mapa.SelectAreaAround(Object.Hero.list[heroId].x, Object.Hero.list[heroId].y,3); break;
                 case "Q": gameLoopRunning=false; break;
                 case "T": Map.Battlefield.fightfield.DrawField();break;
-                case "R": Map.Battlefield.fightfield.Fight(0,1); break;
+                case "R": Map.Battlefield.fightfield.Fight(0,2); break;
             }
             int nextSpotX = moveX + Object.Hero.list[heroId].x, nextSpotY = Object.Hero.list[heroId].y + moveY;
             int thingSpot = Map.mapa.Thing(nextSpotX, nextSpotY);
@@ -133,7 +133,7 @@ namespace Ceroes_
 
                 //drawing image
                 Map.mapa.Select(Object.Hero.list[heroId].x, Object.Hero.list[heroId].y);
-                Map.mapa.PrintSelectedPlane(Object.Hero.list[heroId].x, Object.Hero.list[heroId].y,9);
+                Map.mapa.PrintSelectedPlane(Object.Hero.list[heroId].x, Object.Hero.list[heroId].y,13);
                 //Map.mapa.DrawBox(new List<string> {"a","b","c"});
               
                 //game logic

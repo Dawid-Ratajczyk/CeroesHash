@@ -54,7 +54,7 @@ namespace Ceroes_
             string ret = Console.ReadLine();
             return ret;
         }
-        public static int BuyAmountSelect(int unitId,int playerId)
+        public static int BuyAmountSelectOld(int unitId,int playerId)
         {
             Unit current =Unit.All[unitId];
             string symbol = current.BfSymbol;
@@ -76,13 +76,15 @@ namespace Ceroes_
                     if (index == i) { bar += "Θ"; }
                     else bar += "-";
                 }
-                bar+= ">"; 
-
-                Visual.hSpacer(uiSpacer); Visual.ColoredString("╬═══╬", Player.list[playerId].color,true ,0);
+                bar+= ">";
+                List<string> unitImage = new List<string>() { "╬═══╬" , "║ " + symbol + " ║" , "╬═══╬" };
+                List<string> unitStats = new List<string>() { "Health: "+current.healthMax, "Damage: " + current.damage, "Type: " + current.type};   
+                 Visual.hSpacer(uiSpacer); Visual.ColoredString("╬═══╬", Player.list[playerId].color,true ,0);
                 Visual.hSpacer(uiSpacer); Visual.ColoredString("║ "+symbol+" ║", Player.list[playerId].color, true,0); 
                 Visual.hSpacer(uiSpacer); Visual.ColoredString("╬═══╬", Player.list[playerId].color,true, 0); 
-               
-                Console.WriteLine();//Visual.hSpacer(60); Visual.DrawBoxByLine(3, Side);
+               // Visual.DrawMultipleBoxes(new List<List<string>>(){ unitImage,unitStats});
+
+                Console.WriteLine();
                 Visual.hSpacer(uiSpacer); Visual.ColoredString(current.name, 1, true, 0);
                 Visual.hSpacer(uiSpacer); Console.WriteLine(" buy");
                 Visual.hSpacer(uiSpacer-10); Visual.CenterText(bar,26); Console.WriteLine();
@@ -101,6 +103,53 @@ namespace Ceroes_
                 }
                 //Thread.Sleep(200);
                 Console.Clear();    
+            }
+            return 0;
+        }
+        public static int BuyAmountSelect(int unitId, int playerId)
+        {
+            Unit current = Unit.All[unitId];
+            string symbol = current.BfSymbol;
+            int cPrice = current.cprice, gPrice = current.gprice, index = 0;
+            if (cPrice == 0) { }
+            int maxGold = Player.list[playerId].Resources[0] / gPrice;
+            int maxCrystal = maxGold;
+            if (cPrice != 0) { maxCrystal = Player.list[playerId].Resources[3] / cPrice; }
+            int maxAmount = maxGold; if (maxGold > maxCrystal) maxAmount = maxCrystal;//max amount of units to buy
+            uiSpacer = 55;
+            while (true)
+            {
+                Console.Clear();
+                Map.mapa.vSpacer();
+                Map.mapa.vSpacer();
+                string bar = "<";
+                for (int i = 0; i <= maxAmount; i++)
+                {
+                    if (index == i) { bar += "Θ"; }
+                    else bar += "-";
+                }
+                bar += ">";
+                //bar = "x";
+                List<string> unitImage = new List<string>() { "╬═══╬", "║ " + symbol + " ║", "╬═══╬" };
+                List<string> unitStats = new List<string>() { " Health: " + current.healthMax, " Damage: " + current.damage, " Moves: " + current.move };
+                Visual.DrawMultipleBoxes(new List<List<string>>(){ unitImage,unitStats});
+                Console.WriteLine();
+                List<string> buyamount = new List<string>() { "Name:" + current.name,"Type: ",current.type ,"Buy: "+ Convert.ToString(index) };
+                List<string> costs = new List<string>() { "Gold: " + Player.list[playerId].Resources[0], "Cost: " + index * gPrice, "Crystal: " + Player.list[playerId].Resources[3], "Cost: " + index * cPrice };
+                Visual.DrawMultipleBoxes(new List<List<string>>() { buyamount, costs });
+                Console.WriteLine();
+                Visual.hSpacer(uiSpacer+2); Console.WriteLine(index+" / "+maxAmount);
+                Visual.hSpacer(uiSpacer/2+5); Visual.CenterText(bar, uiSpacer); Console.WriteLine();
+
+                string key = Technical.KeyPress();
+                switch (key)
+                {
+                    case "A": index = Increment(index, -1, 0); break;
+                    case "D": index = Increment(index, 1, maxAmount); break;
+                    case "X": return index;
+                }
+                //Thread.Sleep(200);
+                Console.Clear();
             }
             return 0;
         }
