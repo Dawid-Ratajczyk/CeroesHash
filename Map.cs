@@ -32,6 +32,9 @@ namespace Ceroes_
 
         public List<int> walkableThings=new List<int>(){9,5,6,7,8,10,11,12,0};
         public List<int> walkableBack = new List<int>(){2,9,10};
+        //{" ","α","β","Δ","x","x"," "," "," ","←", "→", "↑", "↓" };
+        public List<int> walkableThingsFight = new List<int>() {0,9,10,11,12};
+
 
         public static List<string> arrows = new List<string>() { "←", "→", "↑", "↓" };
         private static List<string> toDraw = new List<string> { };//right box to draw
@@ -479,7 +482,7 @@ namespace Ceroes_
         }
         public void SetBack(int X,int Y,int color)
         {
-            if (X >= 0&&Y>= 0) this.background[X][Y] = color;
+            if (X >= 0&&Y>= 0&& X < this.x && Y < this.y) this.background[X][Y] = color;
         }
         public struct Resources
         {
@@ -523,7 +526,7 @@ namespace Ceroes_
                 fightfield.plane = EmptyPlane(0);
                 fightfield.background= EmptyPlane(2);
                 fightfield.sideS = x / 2;
-                LitterWithRocks(10);
+                LitterWithRocks(15);
             }
             public void Fight(int lHeroId,int rHeroId)
             { 
@@ -606,9 +609,6 @@ namespace Ceroes_
                                         case "A": moveX = -1; break;
                                         //action
                                         case "X": { Attack(Armies[i][a]); break; }
-
-
-
                                     }
                                     int nextSpotX = moveX + uX, nextSpotY = uY + moveY;
                                     int thingSpot = Map.Battlefield.fightfield.Thing(nextSpotX, nextSpotY);
@@ -631,6 +631,7 @@ namespace Ceroes_
            }
             public void Attack(Unit attacker)
             {
+                int dmgDelay = 400;
                 int X = attacker.x;
                 int Y = attacker.y;
                 int dmg = attacker.damage;
@@ -651,14 +652,62 @@ namespace Ceroes_
                         this.SetBack(X + direction[0], Y + direction[1], 6);
                         GetUnit(X + direction[0], Y + direction[1]).health-=dmg;
                         DrawField();
-                        Thread.Sleep(400);
+                        Thread.Sleep(dmgDelay);
                         if(GetUnit(X + direction[0], Y + direction[1]).health <= 0) { this.plane[X + direction[0]][Y + direction[1]]=0; }
                         this.SetBack(X + direction[0], Y + direction[1], 2);
                         break;
+                    case ("Knight"):
+                        List<List<int>> offets=new List<List<int>>() { new List<int>() { 0,0,0}, new List<int>() { 0, 0, 0 } };
+                        if (direction[0] == 0) {offets = new List<List<int>>() { new List<int>() { -1, 0, 1 }, new List<int>() { 0, 0, 0 } }; }
+                        if (direction[0] != 0) {offets = new List<List<int>>() { new List<int>() { 0,0,0 }, new List<int>() { 1, 0, -1 } }; }
+                        for(int i = 0;i<3;i++)
+                        {
+                            this.SetBack(X + offets[0][i] + direction[0], Y + offets[1][i] + direction[1], 6);
+                            GetUnit(X+offets[0][i] + direction[0], Y+ offets[1][i] + direction[1]).health -= dmg;    
+                        }
+                        DrawField();
+                        Thread.Sleep(dmgDelay);
+                        for (int i = 0; i < 3; i++)
+                        {
+                            if (GetUnit(X + offets[0][i] + direction[0], Y + offets[1][i] + direction[1]).health <= 0) { this.plane[X + direction[0]][Y + direction[1]] = 0; }
+                            this.SetBack(X + offets[0][i] + direction[0], Y + offets[1][i] + direction[1], 2);
+                        }
+                        break;
+
+                    case ("Archer"):
+                        int line = 7;
+                        if (direction[0] == 0) line ++;
+                        
+                    
+                         List<int> point=ProjectileScan(X, Y,direction);
+                        for (int l = 1; l < this.x; l++)
+                        {
+                            if (X + (l * direction[0]) == point[0] && Y + (l * direction[1]) == point[1])
+                            {
+                                break;
+                            }
+                            else plane[X + (l * direction[0])][Y + (l * direction[1])] = line;
+                        }
+
+                        this.SetBack(point[0], point[1], 6);
+                        GetUnit(point[0], point[1]).health -= dmg;
+
+                        DrawField();
+                        Thread.Sleep(dmgDelay);
+
+                        for (int l = 1; l < this.x; l++)
+                        {
+                            if (X + (l * direction[0]) == point[0] && Y + (l * direction[1]) == point[1])
+                            {
+                                break;
+                            }
+                            else plane[X + (l * direction[0])][Y + (l * direction[1])] = 0;
+                        }
+                        if (GetUnit(point[0], point[1]).health <= 0) { this.plane[point[0]][point[1]] = 0; }
+                        this.SetBack(point[0], point[1], 2);
+
+                     break;
                 }
-
-
-
             }
             public Unit GetUnit(int X,int Y)
             {
@@ -673,6 +722,27 @@ namespace Ceroes_
                     }
                 }
                         return Unit.Blank;
+            }
+            public List<int> ProjectileScan(int X,int Y,List<int>dir)
+            {
+                List<int> pointReturn = new List<int>() { 0,0};
+                for(int i=1; i < this.x; i++)
+                {
+                    if (walkableBack.Contains(Back(X+(i * dir[0]), Y + (i * dir[1])))==false|| walkableThingsFight.Contains(Thing(X + (i * dir[0]), Y + (i * dir[1])))==false)
+                    {
+
+                        if (Back(X + (i * dir[0]), Y + (i * dir[1])) == 1) i--;
+
+                        pointReturn = new List<int>() { X + (i * dir[0]), Y + (i * dir[1]) };
+                        if (pointReturn[0] < 0) pointReturn[0] = 0;
+                        else if (pointReturn[0] >= this.x) pointReturn[0] = this.x - 1;
+
+                        if (pointReturn[1] < 0) pointReturn[1] = 0;
+                        else if (pointReturn[1] >= this.y) pointReturn[1] = this.y - 1;
+                        return pointReturn;
+                    }
+                }
+                return pointReturn;
             }
             public void DrawField()
             {
