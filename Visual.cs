@@ -16,19 +16,20 @@ namespace Ceroes_
             Visual.SetBackgroundColour(backgroundColor);
             Visual.SetObjectColour(textColor);
             width = width * 2;
-            if (line >= 0 && line <= Lines.Count+1)
+            if (line >= 0 && line <= Lines.Count + 1)
             {
-                if (line == 0&&sides) SideBoxLine(width-1, false);else if(line==0) hSpacer(width);
-                if (line >0 && line <= Lines.Count)
-                {  
-                    if (sides)  { SideBoxStick(); }
-                    
+                if (line == 0 && sides) SideBoxLine(width - 1, false); else if (line == 0) hSpacer(width);
+                if (line > 0 && line <= Lines.Count)
+                {
+                    if (sides) { SideBoxStick(); }
+
                     Visual.CenterText(Lines[line - 1], width);
-                    
-                    if (sides) { SideBoxStick(); } 
-                } 
-                if ((line == Lines.Count+1 )&&sides) SideBoxLine(width-1, false); else if (line==Lines.Count + 1) hSpacer(width);
+
+                    if (sides) { SideBoxStick(); }
+                }
+                if ((line == Lines.Count + 1) && sides) SideBoxLine(width - 1, false); else if (line == Lines.Count + 1) hSpacer(width);
             }
+            else { Visual.ResetColour(); hSpacer(width);if (sides) hSpacer(2); }
             Visual.ResetColour();
         }
         public static void DrawMultipleBoxes(List<List<string>>lists)
@@ -123,6 +124,7 @@ namespace Ceroes_
                 case 8: Console.BackgroundColor = ConsoleColor.Magenta; break;
                 case 9: Console.BackgroundColor = ConsoleColor.DarkYellow;break;
                 case 10: Console.BackgroundColor = ConsoleColor.Yellow; break;
+                case 11: Console.BackgroundColor = ConsoleColor.Gray; break;
             }
         }
         public static void SetObjectColour(int id)

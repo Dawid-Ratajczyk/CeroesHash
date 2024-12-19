@@ -18,7 +18,7 @@ namespace Ceroes_
         {
             this.name = Name;
             this.color = Color;
-            this.Resources = new List<int>{100,10,10,5};
+            this.Resources = new List<int>{1000,10,10,5};
         }
        
         public Player(){}
