@@ -38,9 +38,10 @@ namespace Ceroes_
             Map.mapa.plane[2][2] = 8;
             Map.Battlefield.fightfield.FightFieldSetup(30,10);
         }
-        void HeroPick(int id)
+       static  void HeroPick(int id)
         {
             heroId=id;
+            player = Object.Hero.list[id].playerId;
         }
    
 
@@ -63,8 +64,8 @@ namespace Ceroes_
                 case "P": Map.mapa.SaveCurrentMapJSon(Technical.Input("Save Map"));break;
                 case "U": Technical.BuyAmountSelect(0,player);break;
                 case "J": player=Technical.Flip(player); heroId = Technical.Flip(heroId); break;
-                case "O": heroId++;break;
-                case "I": heroId--;break;
+                case "O": HeroPick(Technical.Increment(heroId,1,Object.Hero.list.Count-1));break;
+                case "I": HeroPick(Technical.Increment(heroId, -1, 0)); break;
                 case "K": Map.mapa.SaveGame(); break;
                 case "M": Map.mapa.LoadGame(); break;
                 case "B": Map.mapa.SelectAreaAround(Object.Hero.list[heroId].x, Object.Hero.list[heroId].y,3); break;
@@ -99,14 +100,14 @@ namespace Ceroes_
         }
         static void Interact()
         {
-           // if(Map.mapa.IsInteractingWithBuilding(Object.Hero.list[Program.heroId].x, Object.Hero.list[Program.heroId].y))
-           // {
+           if(Map.mapa.IsInteractingWithBuilding(Object.Hero.list[Program.heroId].x, Object.Hero.list[Program.heroId].y))
+            {
                 switch(TownMenu.Choice())
                 {
                     case 0: BuyUnitsMenu(); break;
                 }
 
-         //   }
+            }
         }
         static void BuyUnitsMenu() 
         {

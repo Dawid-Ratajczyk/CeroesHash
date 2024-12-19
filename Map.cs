@@ -438,7 +438,7 @@ namespace Ceroes_
         public bool IsInside(int X,int Y)
         {
             bool answear=true;
-            if(X < 0 || Y < 0 || X>x-1 || Y>y-1)answear=false;
+            if(X < 0 || Y < 0 || X>this.x-1 || Y>this.y-1)answear=false;
             return answear;
             
         }
@@ -520,6 +520,7 @@ namespace Ceroes_
             public static int currentPlayer=0;
            static List<int> playerId;
             static List<string> UnitsInfo;
+            static int damageDelay = 400;
             public static Battlefield fightfield = new Battlefield();           
             public Battlefield() :base(20, 20)
             {
@@ -658,12 +659,7 @@ namespace Ceroes_
                 switch (attacker.name)
                 {
                     case ("Soldier"):
-                        this.SetBack(X + direction[0], Y + direction[1], 6);
-                        GetUnit(X + direction[0], Y + direction[1]).health-=dmg;
-                        DrawField();
-                        Thread.Sleep(dmgDelay);
-                        if(GetUnit(X + direction[0], Y + direction[1]).health <= 0) { this.plane[X + direction[0]][Y + direction[1]]=0; }
-                        this.SetBack(X + direction[0], Y + direction[1], 2);
+                        TileAttacked(X + direction[0], Y + direction[1], dmg);
                     break;
                     case ("Knight"):
                         List<List<int>> offets=new List<List<int>>() { new List<int>() { 0,0,0}, new List<int>() { 0, 0, 0 } };
@@ -671,46 +667,60 @@ namespace Ceroes_
                         if (direction[0] != 0) {offets = new List<List<int>>() { new List<int>() { 0,0,0 }, new List<int>() { 1, 0, -1 } }; }
                         for(int i = 0;i<3;i++)
                         {
-                            this.SetBack(X + offets[0][i] + direction[0], Y + offets[1][i] + direction[1], 6);
-                            GetUnit(X+offets[0][i] + direction[0], Y+ offets[1][i] + direction[1]).health -= dmg;    
-                        }
-                        DrawField();
-                        Thread.Sleep(dmgDelay);
-                        for (int i = 0; i < 3; i++)
-                        {
-                            if (GetUnit(X + offets[0][i] + direction[0], Y + offets[1][i] + direction[1]).health <= 0) { this.plane[X + direction[0]][Y + direction[1]] = 0; }
-                            this.SetBack(X + offets[0][i] + direction[0], Y + offets[1][i] + direction[1], 2);
+                            TileAttacked(X + offets[0][i] + direction[0], Y + offets[1][i] + direction[1], dmg);
                         }
                      break;
 
                     case ("Archer"):
-                        int line = 7;
+                        int line = 7;//check if horizontal line or vertical
                         if (direction[0] == 0) line ++;
                         List<int> point=ProjectileScan(X, Y,direction);
+                        //adding arrow lines
                         for (int l = 1; l < this.x; l++)
                         {
-                            if (X + (l * direction[0]) == point[0] && Y + (l * direction[1]) == point[1])
+                            int newX = X + (l * direction[0]);
+                            int newY = Y + (l * direction[1]);
+                            if (IsInside(newX, newY))
                             {
-                                break;
+                                if (newX == point[0] && newY == point[1])
+                                {
+                                    break;
+                                }
+                                else plane[newX][newY] = line;
                             }
-                            else plane[X + (l * direction[0])][Y + (l * direction[1])] = line;
                         }
-                        this.SetBack(point[0], point[1], 6);
-                        GetUnit(point[0], point[1]).health -= dmg;
-                        DrawField();
-                        Thread.Sleep(dmgDelay);
+                        TileAttacked(point[0], point[1], dmg);
+                        //removing arrow lines
                         for (int l = 1; l < this.x; l++)
                         {
-                            if (X + (l * direction[0]) == point[0] && Y + (l * direction[1]) == point[1])
+                            int newX = X + (l * direction[0]);
+                            int newY = Y + (l * direction[1]);
+                            if (IsInside(newX, newY))
                             {
-                                break;
+                                if (newX == point[0] && newY == point[1])
+                                {
+                                    break;
+                                }
+                                else plane[newX][newY] = 0;
                             }
-                            else plane[X + (l * direction[0])][Y + (l * direction[1])] = 0;
                         }
-                        if (GetUnit(point[0], point[1]).health <= 0) { this.plane[point[0]][point[1]] = 0; }
-                        this.SetBack(point[0], point[1], 2);
-
                      break;
+                }
+            }
+            public void TileAttacked(int X,int Y,int Damage)
+            {
+                SelectAreaAround(-1,-1,0);
+                if (IsInside(X, Y))
+                {
+                    this.SetBack(X, Y, 6);
+                    DrawField();
+                    Thread.Sleep(damageDelay);
+                    if (GetUnit(X, Y).name != "")
+                    {
+                        GetUnit(X, Y).health -= Damage;
+                        if (GetUnit(X, Y).health <= 0) { this.plane[X][Y] = 0; }
+                    }
+                    this.SetBack(X, Y, 2);
                 }
             }
             public Unit GetUnit(int X,int Y)
@@ -767,12 +777,13 @@ namespace Ceroes_
                 }
                 return pointReturn;
             }
+            
             public void DrawField()
             {
                 Console.Clear();
                 vSpacer();
                 HoriznotalLine(true, false);
-                hSpacer(5);Visual.DrawBoxByLine(0, UnitsInfo, 7,false);
+                hSpacer(5);Visual.DrawBoxByLine(0, UnitsInfo, 7, true, 1, Player.list[playerId[currentPlayer]].color);
                 Console.WriteLine();
                 for (int i = 0; i < y; i++)
                 {
@@ -794,7 +805,7 @@ namespace Ceroes_
 
                     }
 
-                    hSpacer(5); Visual.DrawBoxByLine(i+1, UnitsInfo,7,false);
+                    hSpacer(5); Visual.DrawBoxByLine(i+1, UnitsInfo,7, true,1 , Player.list[playerId[currentPlayer]].color);
                     
                     Visual.SetBackgroundColour(0);
                     Console.WriteLine();

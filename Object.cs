@@ -116,7 +116,7 @@ namespace Ceroes_
             public List<Unit> Units = new List<Unit>() {Unit.Blank, Unit.Blank, Unit.Blank, Unit.Blank, Unit.Blank};
             public List<int> UnitsAmount =new List<int>() {0,0,0,0,0};
 
-            public static List<Hero> list = new List<Hero> { new Hero("Player", 1, 1, 0, 0), new Hero("Oponent", 6, 6, 1, 1), new Hero("Oponent2", 5, 5, 2, 2) };
+            public static List<Hero> list = new List<Hero> { new Hero("Andrew", 0,0, 0, 0),new Hero("Aron", 1, 1, 0,1), new Hero("Bepis", 6, 6, 1, 2), new Hero("Cys", 5, 5, 2, 3) };
             public bool controlled = true;
 
             public Hero(string Name, int X, int Y, int player,int Id)
@@ -125,7 +125,7 @@ namespace Ceroes_
                 name = Name;
                 x = X;
                 y = Y;
-                color = Visual.PlayerColour(player);
+                color = Player.list[player].color;
                 playerId = player;
                 id = Id;
             }
@@ -134,10 +134,10 @@ namespace Ceroes_
         public class Building:Object
         {
             public int id = 2;
-      
-            public static List<Building> list = new List<Building> {new Object.Building("Castle",5,10,4), new Object.Building("Castle", 10, 5, 3) };
+            public int playerId;
+            public static List<Building> list = new List<Building> {new Object.Building("Castle",5,10,0), new Object.Building("Castle", 10, 5, 1), new Object.Building("Castle", 10, 10, 2) };
             
-            public Building(string Name, int X, int Y, int Color)
+            public Building(string Name, int X, int Y, int PlayerId)
             {
                 switch(Name)
                 {
@@ -147,7 +147,8 @@ namespace Ceroes_
                 name = Name;
                 x = X;
                 y = Y;
-                color = Color;
+                color = Player.list[PlayerId].color;
+                this.playerId=PlayerId;
             }
             public Building() { }
             public static void Placement()
@@ -169,8 +170,8 @@ namespace Ceroes_
                         Map.mapa.plane[X-1][Y] = 3;
                         Map.mapa.plane[X][Y-1] = 4;
 
-                        list.Add(new Object.Building("Banner", X + 1, Y, list[i].color));  
-                        list.Add(new Object.Building("Banner", X - 1, Y, list[i].color));
+                        list.Add(new Object.Building("Banner", X + 1, Y, list[i].playerId));  
+                        list.Add(new Object.Building("Banner", X - 1, Y, list[i].playerId));
                     }
                 }
             }

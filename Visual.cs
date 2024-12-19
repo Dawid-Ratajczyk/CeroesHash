@@ -11,20 +11,25 @@ namespace Ceroes_
         static public string[] mapNames = { "Air", "Hero" ,"Castle","Banner","Barrier","Gold","Wood","Stone","Crystal","Left","Right","Up","Down"};
         static public string[] battleSymbols = {" ","α","β","Δ","x","x"," ","-","|","←", "→", "↑", "↓" };
         public static int uiSpacer = 65;
-        public static void DrawBoxByLine(int line, List<string> Lines,int width=5,bool sides=true)
+        public static void DrawBoxByLine(int line, List<string> Lines, int width = 5, bool sides = true, int backgroundColor = 0,int textColor=1)
         {
+            Visual.SetBackgroundColour(backgroundColor);
+            Visual.SetObjectColour(textColor);
             width = width * 2;
             if (line >= 0 && line <= Lines.Count+1)
             {
                 if (line == 0&&sides) SideBoxLine(width-1, false);else if(line==0) hSpacer(width);
                 if (line >0 && line <= Lines.Count)
                 {  
-                    if (sides)  { SideBoxStick(); } 
-                    Visual.CenterText(Lines[line - 1], width); 
+                    if (sides)  { SideBoxStick(); }
+                    
+                    Visual.CenterText(Lines[line - 1], width);
+                    
                     if (sides) { SideBoxStick(); } 
                 } 
                 if ((line == Lines.Count+1 )&&sides) SideBoxLine(width-1, false); else if (line==Lines.Count + 1) hSpacer(width);
             }
+            Visual.ResetColour();
         }
         public static void DrawMultipleBoxes(List<List<string>>lists)
         {
