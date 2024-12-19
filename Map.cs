@@ -325,15 +325,19 @@ namespace Ceroes_
         {
             List<int> spots =FreeSpotsAround(X,Y);
 
-           if ((arrowPointer.x < 0 || arrowPointer.y<0)==false)//if pointer exists erase earlier
-           {
+            if ((arrowPointer.x < 0 || arrowPointer.y < 0) == false)//if pointer exists erase earlier
+            {
                 if (arrowPointer.savedThing == 0 && IsArrow(arrowPointer.x, arrowPointer.y))//if object
                 {
                     this.plane[arrowPointer.x][arrowPointer.y] = 0;
                 }
-                else if(arrowPointer.savedThing != 0) // if background
+                else if (arrowPointer.savedThing != 0) // if saved object
                 {
-                    this.background[arrowPointer.x][arrowPointer.y] = arrowPointer.savedThing;
+                    this.plane[arrowPointer.x][arrowPointer.y] = arrowPointer.savedThing;
+                }
+                if (arrowPointer.colorSaved!=0)
+                {
+                    this.background[arrowPointer.x][arrowPointer.y]=arrowPointer.colorSaved;
                 }
             }
             if (spots[2] != 0)//if place is not in object
@@ -345,7 +349,7 @@ namespace Ceroes_
             else//if place is object
             {
                 arrowPointer.colorSaved = this.background[spots[0]][spots[1]];
-                this.background[spots[0]][spots[1]] = 9; 
+                this.background[spots[0]][spots[1]] = 10; 
             }
             arrowPointer.x = spots[0];
             arrowPointer.y = spots[1];
@@ -514,6 +518,8 @@ namespace Ceroes_
            public static List<int> Heroes = new List<int>() { 0, 1};
            public static  List<List<Unit>> Armies = new List<List<Unit>>() { LUnits, RUnits };
             public static int currentPlayer=0;
+           static List<int> playerId;
+            static List<string> UnitsInfo;
             public static Battlefield fightfield = new Battlefield();           
             public Battlefield() :base(20, 20)
             {
@@ -529,7 +535,8 @@ namespace Ceroes_
                 LitterWithRocks(15);
             }
             public void Fight(int lHeroId,int rHeroId)
-            { 
+            {
+                playerId = new List<int>() { Object.Hero.list[lHeroId].playerId, Object.Hero.list[rHeroId].playerId };
                 FightPlaceUnits(lHeroId,rHeroId);
                 Program.fight = true;
                 while(Program.fight)
@@ -539,9 +546,7 @@ namespace Ceroes_
                     Technical.CleanBuffer();
                     Thread.Sleep(200);
                     Console.Clear();
-
-                }
-                
+                }  
             }
 
             public void FightPlaceUnits(int lHeroId, int rHeroId)
@@ -570,6 +575,7 @@ namespace Ceroes_
                 
 
             }
+          
             public void UnitAction()
             {   
                 bool unitAction = true; 
@@ -577,8 +583,11 @@ namespace Ceroes_
                 {
                     for(int  i = 0;i <2;i++)
                     {
+                        Program.player = playerId[i];
+                        currentPlayer = playerId[i];
                         for (int a = 0; a < Armies[i].Count; a++)
                         {
+                            UnitsInfo = FightingUnits()[i];
                             if (this.plane[Armies[i][a].x][Armies[i][a].y] != 0)
                             {
                                 lowBoxDraw.Clear();
@@ -608,14 +617,14 @@ namespace Ceroes_
                                         case "S": moveY = 1; break;
                                         case "A": moveX = -1; break;
                                         //action
-                                        case "X": { Attack(Armies[i][a]); break; }
+                                        case "X": { m = Armies[i][a].move; Attack(Armies[i][a]); break; }
                                     }
                                     int nextSpotX = moveX + uX, nextSpotY = uY + moveY;
                                     int thingSpot = Map.Battlefield.fightfield.Thing(nextSpotX, nextSpotY);
                                     //move to empty spot
                                     if (Map.Battlefield.fightfield.IsInside(nextSpotX, nextSpotY) && Map.Battlefield.fightfield.SpotEmpty(nextSpotX, nextSpotY))
                                     {
-                                        Console.WriteLine("moe");
+                                      
                                         Map.Battlefield.fightfield.Move(uX, uY, moveX, moveY);
                                         Armies[i][a].x += moveX;
                                         Armies[i][a].y += moveY;
@@ -655,7 +664,7 @@ namespace Ceroes_
                         Thread.Sleep(dmgDelay);
                         if(GetUnit(X + direction[0], Y + direction[1]).health <= 0) { this.plane[X + direction[0]][Y + direction[1]]=0; }
                         this.SetBack(X + direction[0], Y + direction[1], 2);
-                        break;
+                    break;
                     case ("Knight"):
                         List<List<int>> offets=new List<List<int>>() { new List<int>() { 0,0,0}, new List<int>() { 0, 0, 0 } };
                         if (direction[0] == 0) {offets = new List<List<int>>() { new List<int>() { -1, 0, 1 }, new List<int>() { 0, 0, 0 } }; }
@@ -672,14 +681,12 @@ namespace Ceroes_
                             if (GetUnit(X + offets[0][i] + direction[0], Y + offets[1][i] + direction[1]).health <= 0) { this.plane[X + direction[0]][Y + direction[1]] = 0; }
                             this.SetBack(X + offets[0][i] + direction[0], Y + offets[1][i] + direction[1], 2);
                         }
-                        break;
+                     break;
 
                     case ("Archer"):
                         int line = 7;
                         if (direction[0] == 0) line ++;
-                        
-                    
-                         List<int> point=ProjectileScan(X, Y,direction);
+                        List<int> point=ProjectileScan(X, Y,direction);
                         for (int l = 1; l < this.x; l++)
                         {
                             if (X + (l * direction[0]) == point[0] && Y + (l * direction[1]) == point[1])
@@ -688,13 +695,10 @@ namespace Ceroes_
                             }
                             else plane[X + (l * direction[0])][Y + (l * direction[1])] = line;
                         }
-
                         this.SetBack(point[0], point[1], 6);
                         GetUnit(point[0], point[1]).health -= dmg;
-
                         DrawField();
                         Thread.Sleep(dmgDelay);
-
                         for (int l = 1; l < this.x; l++)
                         {
                             if (X + (l * direction[0]) == point[0] && Y + (l * direction[1]) == point[1])
@@ -723,6 +727,25 @@ namespace Ceroes_
                 }
                         return Unit.Blank;
             }
+            public List<List<string>> FightingUnits()
+            {
+                List<List<string>> Lines=new List<List<string>>() {new List<string>(), new List<string>() };
+                
+               
+                for (int i = 0; i < 2; i++)
+                {
+                    Lines[i].Add(Player.list[playerId[i]].name + " Army");
+                    Lines[i].Add("");
+                    for (int a = 0; a < Armies[i].Count; a++)
+                    {
+                        if (Armies[i][a].health > 0) Lines[i].Add(Armies[i][a].name + " " + Armies[i][a].health + "/" + Armies[i][a].healthMax);
+                        else Lines[i].Add(Armies[i][a].name + "  Dead");
+                    }
+                    Lines[i].Add("");
+                    //Lines[i].Add("");
+                }
+                return Lines;
+            }
             public List<int> ProjectileScan(int X,int Y,List<int>dir)
             {
                 List<int> pointReturn = new List<int>() { 0,0};
@@ -749,6 +772,7 @@ namespace Ceroes_
                 Console.Clear();
                 vSpacer();
                 HoriznotalLine(true, false);
+                hSpacer(5);Visual.DrawBoxByLine(0, UnitsInfo, 7,false);
                 Console.WriteLine();
                 for (int i = 0; i < y; i++)
                 {
@@ -768,7 +792,10 @@ namespace Ceroes_
                         Visual.ResetColour();
                         if (j == x - 1) { hLine(); }
 
-                    }   
+                    }
+
+                    hSpacer(5); Visual.DrawBoxByLine(i+1, UnitsInfo,7,false);
+                    
                     Visual.SetBackgroundColour(0);
                     Console.WriteLine();
                 }
