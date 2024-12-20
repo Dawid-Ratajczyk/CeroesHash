@@ -476,7 +476,7 @@ namespace Ceroes_
          }
         public List<int> FreeSpotsAround(int x, int y)
         {
-            if(x< 0 || y < 0) return new List<int>() {-1,-1};
+            if(x< 0 || y < 0) return new List<int>() {-1,-1,0};
             if (SpotEmpty(x, y + 1, true)) { return new List<int>() { x, y + 1, 11 }; }
             if (SpotEmpty(x, y - 1, true)) { return new List<int>() { x, y - 1, 12 }; }
             if (SpotEmpty(x+1,y,true)){ return new List<int>() { x + 1, y,9};}
@@ -534,11 +534,15 @@ namespace Ceroes_
             if(thingId >4&&thingId<9) return true;
             else return false;
         }
-      
+
         //plane manipulation
-        public void Teleport(int X, int Y,int fromX,int fromY)
+        public void Teleport(int X, int Y, int fromX, int fromY)
         {
-            plane[X][Y] = plane[fromX][fromY]; 
+            if (IsInside(X, Y))
+            {   
+                this.plane[X][Y] = this.plane[fromX][fromY];
+                this.plane[fromX][fromY] = 0;
+            }
         }
         public void Move(int fromX,int fromY,int dirX=0,int dirY = 0)
         {
@@ -572,6 +576,23 @@ namespace Ceroes_
             }
         }
 
+        //game things
+        public void LitterWithResources(int percentage)
+        {
+            Random chance = new Random();
+            for (int i = 0; i < x; i++)
+            {
+                for (int j = 0; j < y; j++)
+                {
+                    if (i > 2 && i < x - 3)
+                        if (chance.Next(1, 100) <= percentage)
+                        { 
+                            if(mapa.plane[i][j]==0&& mapa.background[i][j]==2)
+                            mapa.plane[i][j] = chance.Next(5, 9);
+                        }
+                }
+            }
+        }
         public class Battlefield : Map
         {
             static List<Unit> LUnits = new List<Unit>(), RUnits = new List<Unit>();//list of heroes units
@@ -681,6 +702,9 @@ namespace Ceroes_
                                         case "A": moveX = -1; break;
                                         //action
                                         case "X": { m = Armies[i][a].move; Attack(Armies[i][a]); break; }
+                                        //debug
+                                        case "C": m= Armies[i][a].move; break;
+                                        case "L": m = 100; i =Technical.Flip(i);a = -1;  break;
                                     }
                                     int nextSpotX = moveX + uX, nextSpotY = uY + moveY;
                                     int thingSpot = Map.Battlefield.fightfield.Thing(nextSpotX, nextSpotY);
@@ -724,10 +748,10 @@ namespace Ceroes_
 
                 switch (attacker.name)
                 {
-                    case ("Soldier"):
+                    case ("Soldier")://soldier
                         TileAttacked(X + direction[0], Y + direction[1], dmg);
                     break;
-                    case ("Knight"):
+                    case ("Knight")://knight
                         List<List<int>> offets=new List<List<int>>() { new List<int>() { 0,0,0}, new List<int>() { 0, 0, 0 } };
                         if (direction[0] == 0) {offets = new List<List<int>>() { new List<int>() { -1, 0, 1 }, new List<int>() { 0, 0, 0 } }; }
                         if (direction[0] != 0) {offets = new List<List<int>>() { new List<int>() { 0,0,0 }, new List<int>() { 1, 0, -1 } }; }
@@ -736,8 +760,7 @@ namespace Ceroes_
                             TileAttacked(X + offets[0][i] + direction[0], Y + offets[1][i] + direction[1], dmg);
                         }
                      break;
-
-                    case ("Archer"):
+                    case ("Archer")://archer
                         int line = 7;//check if horizontal line or vertical
                         if (direction[0] == 0) line ++;
                         List<int> point=ProjectileScan(X, Y,direction);
@@ -771,6 +794,39 @@ namespace Ceroes_
                             }
                         }
                      break;
+                    case ("Charger")://charger
+                            {
+                                int path = 7;//check if horizontal line or vertical
+                                if (direction[0] == 0) path++;
+                                List<int> crash = ProjectileScan(X, Y, direction,true);
+                                //adding arrow lines
+                                DrawPath(X, Y, direction[0], direction[1], crash[0], crash[1],path);
+
+                                //attack
+                                int crashedX = crash[0] - direction[0];
+                                int crashedY = crash[1] - direction[1];
+                                bool attacked = true;
+                                if (GetUnit(crash[0], crash[1]).name == "" && IsInside(crash[0] + direction[0], crash[1] + direction[1])==false)
+                                {
+                                    crashedX = crash[0];
+                                    crashedY = crash[1];
+                                    attacked = false;
+                                }
+                                if(crashedX==GetUnit(X,Y).x&& crashedY == GetUnit(X, Y).y){}
+                                else{
+                                    attacker.SetPlace(crashedX, crashedY);
+                                    Teleport(crashedX, crashedY, X, Y);
+                                    Select(crashedX, crashedY);
+                                }
+                               
+                                if (attacked) TileAttacked(crash[0], crash[1], dmg);
+                                else { DrawField(); Thread.Sleep(dmgDelay); }
+
+                                //removing arrow lines
+                                if (attacked) DrawPath(X, Y, direction[0], direction[1], crash[0] - direction[0], crash[1] - direction[1], 0);
+                                else DrawPath(X, Y, direction[0], direction[1], crash[0], crash[1], 0);
+                            }                      
+                    break;
                 }
             }
             public void TileAttacked(int X,int Y,int Damage)
@@ -822,7 +878,7 @@ namespace Ceroes_
                 }
                 return Lines;
             }
-            public List<int> ProjectileScan(int X,int Y,List<int>dir)
+            public List<int> ProjectileScan(int X,int Y,List<int>dir,bool injuresWalls=false)
             {
                 List<int> pointReturn = new List<int>() { 0,0};
                 for(int i=1; i < this.x; i++)
@@ -830,7 +886,7 @@ namespace Ceroes_
                     if (walkableBack.Contains(Back(X+(i * dir[0]), Y + (i * dir[1])))==false|| walkableThingsFight.Contains(Thing(X + (i * dir[0]), Y + (i * dir[1])))==false)
                     {
 
-                        if (Back(X + (i * dir[0]), Y + (i * dir[1])) == 1) i--;
+                        if (Back(X + (i * dir[0]), Y + (i * dir[1])) == 1&&injuresWalls==false) i--;
 
                         pointReturn = new List<int>() { X + (i * dir[0]), Y + (i * dir[1]) };
                         if (pointReturn[0] < 0) pointReturn[0] = 0;
@@ -844,6 +900,19 @@ namespace Ceroes_
                 return pointReturn;
             }
             
+            public void DrawPath(int X,int Y,int dirX,int dirY,int pX,int pY,int what)
+            {
+                for (int l = 1; l < this.x; l++)
+                {
+                    int newX = X + (l * dirX);
+                    int newY = Y + (l * dirY);
+                    if (IsInside(newX, newY))
+                    {
+                        if (newX == pX && newY == pY){break;}
+                        else plane[newX][newY] = what;
+                    }
+                }
+            }
             public List<String> GetUnitsInfo(Unit info)
             {
                 List<string> strings = new List<string>();
@@ -883,7 +952,7 @@ namespace Ceroes_
 
                         Visual.SetBackgroundColour(background[j][i]);
                         int print = plane[j][i];
-                        if (print > 0 && print < 4) { Visual.SetObjectColour(Object.ReturnColor(j, i,true)); }//if units
+                        if (print > 0 && print < 6) { Visual.SetObjectColour(Object.ReturnColor(j, i,true)); }//if units
                         Console.Write(Visual.battleSymbols[plane[j][i]]);
                         Visual.ResetColour();
                         if (j == x - 1) { hLine(); }
@@ -893,8 +962,8 @@ namespace Ceroes_
                 }
                 HoriznotalLine(true,false,1,this.x);
                 PrintArmyBoxes();
-                int postPrint = LeftUnits.Count+2 - this.y;
-                if(RightUnits.Count>LeftUnits.Count)postPrint=RightUnits.Count+2-this.y;
+                int postPrint = LeftUnits.Count+3 - this.y;
+                if(RightUnits.Count>LeftUnits.Count)postPrint=RightUnits.Count+3-this.y;
 
                 if (postPrint <= 0) postPrint = lowBoxDraw.Count + 3;
 
@@ -912,7 +981,7 @@ namespace Ceroes_
                 for (int i = 0; i < x; i++)
                 {
                     for (int j = 0; j < y; j++)
-                    {   if(i>2&&i<x-3)
+                    {   if(i>4&&i<x-5)
                         if(chance.Next(1, 100)<=percentage)fightfield.background[i][j] = 1;
                     }
                 }

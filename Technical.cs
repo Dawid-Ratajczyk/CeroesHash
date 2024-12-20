@@ -148,7 +148,6 @@ namespace Ceroes_
                     case "D": index = Increment(index, 1, maxAmount); break;
                     case "X": return index;
                 }
-                //Thread.Sleep(200);
                 Console.Clear();
             }
             return 0;

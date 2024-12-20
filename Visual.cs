@@ -9,7 +9,7 @@ namespace Ceroes_
     {
         static public string[] mapSymbols = {" ", "ȸ", "▄", "░"," ","G","W","S","C", "←", "→", "↑", "↓" };
         static public string[] mapNames = { "Air", "Hero" ,"Castle","Banner","Barrier","Gold","Wood","Stone","Crystal","Left","Right","Up","Down"};
-        static public string[] battleSymbols = {" ","α","β","Δ","x","x"," ","-","|","←", "→", "↑", "↓" };
+        static public string[] battleSymbols = {" ", Unit.All[0].BfSymbol, Unit.All[1].BfSymbol, Unit.All[2].BfSymbol, Unit.All[3].BfSymbol, "x"," ", "―", "|","←", "→", "↑", "↓" };
         public static int uiSpacer = 65;
         public static void DrawBoxByLine(int line, List<string> Lines, int width = 5, bool sides = true, int backgroundColor = 0,int textColor=1)
         {

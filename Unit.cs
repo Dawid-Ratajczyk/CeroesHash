@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Ceroes_
@@ -9,9 +10,9 @@ namespace Ceroes_
         public static Unit Blank =new Unit(0,0,0,0,"","","");
         public static Unit Soldier = new Unit(10, 5, 1, 6,"Soldier", "α", "Melee", 15);
         public static Unit Knight = new Unit(20, 10, 2,4,"Knight", "β", "Melee Sweep", 50,1);
-        public static Unit Archer = new Unit(10, 15, 3, 3,"Archer", "Δ", "Ranged", 30, 2);
-
-        public static List<Unit> All = new List<Unit>() { Soldier, Knight, Archer};
+        public static Unit Archer = new Unit(10, 5, 3, 3,"Archer", "Δ", "Ranged", 30, 2);
+        public static Unit Charger = new Unit(30, 15, 4, 4, "Charger", "Ψ", "Charge", 60, 2);
+        public static List<Unit> All = new List<Unit>() { Soldier, Knight, Archer,Charger};
 
         public int x, y,color;
         public string type;
@@ -56,6 +57,11 @@ namespace Ceroes_
                 
                 Object.Hero.list[heroId].UnitsAmount[unitId] += amount;
             }
+        }
+        public void SetPlace(int X,int Y)
+        {
+            this.x = X;
+            this.y = Y;
         }
         public static Unit Copy(int index)
         {

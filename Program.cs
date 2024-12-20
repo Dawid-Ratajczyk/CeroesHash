@@ -23,7 +23,7 @@ namespace Ceroes_
         public static bool fight = false;
        
         public static Technical.Select TownMenu = new Technical.Select(new List<string>() { "Buy Units", "Build Building", "Exit" });
-        public static Technical.Select BuyUnitMenu = new Technical.Select(new List<string>() { "Buy " + Unit.All[0].name, "Buy " + Unit.All[1].name,"Buy "+ Unit.All[2].name, "Exit" });
+        public static Technical.Select BuyUnitMenu = new Technical.Select(new List<string>() { "Buy " + Unit.All[0].name, "Buy " + Unit.All[1].name,"Buy "+ Unit.All[2].name, "Buy " + Unit.All[3].name, "Exit" });
 
         //public static Map mapa;
         static void TechnicalSetup()
@@ -35,7 +35,7 @@ namespace Ceroes_
         {
             Object.Initialization();
 
-            Map.mapa.plane[2][2] = 8;
+            Map.mapa.LitterWithResources(4);
             Map.Battlefield.fightfield.FightFieldSetup(30,10);
         }
         static  void HeroPick(int id)
@@ -71,7 +71,7 @@ namespace Ceroes_
                 case "B": Map.mapa.SelectAreaAround(Object.Hero.list[heroId].x, Object.Hero.list[heroId].y,3); break;
                 case "Q": gameLoopRunning=false; break;
                 case "T": Map.Battlefield.fightfield.DrawField();break;
-                case "R": Map.Battlefield.fightfield.Fight(0,2); break;
+                case "R": Map.Battlefield.fightfield.Fight(0,1); break;
             }
             int nextSpotX = moveX + Object.Hero.list[heroId].x, nextSpotY = Object.Hero.list[heroId].y + moveY;
             int thingSpot = Map.mapa.Thing(nextSpotX, nextSpotY);
